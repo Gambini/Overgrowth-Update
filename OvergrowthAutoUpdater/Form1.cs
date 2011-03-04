@@ -25,7 +25,7 @@ namespace OvergrowthAutoUpdater
         public string[] updateZips;
         ///<summary>True if it is the first time the form is loaded. Used so message boxes don't pop up.</summary>
         public bool firstTime = true;
-
+        public OpenFileDialog exeFileDialog;
 
 
         public frmMain()
@@ -42,6 +42,7 @@ namespace OvergrowthAutoUpdater
         {
             ReadConfigFile(configPath);
             txtUpdateDir.Text = attributes.updateDirectory;
+            cboxHaveUpdate.Checked = attributes.hasUpdateFiles;
             firstTime = false;
         }
 
@@ -72,6 +73,9 @@ namespace OvergrowthAutoUpdater
                             break;
                         case "downloadOption":
                             attributes.downloadOption = data[1];
+                            break;
+                        case "haseUpdateFiles":
+                            attributes.hasUpdateFiles = bool.Parse(data[1]);
                             break;
                         default:
                             break;
@@ -130,22 +134,25 @@ namespace OvergrowthAutoUpdater
         private void rbtnDownload_CheckedChanged(object sender, EventArgs e)
         {
             attributes.downloadOption = "Download";
+            btnDoUpdate.Text = attributes.downloadOption;
         }
 
         private void rbtnUpdate_CheckedChanged(object sender, EventArgs e)
         {
             attributes.downloadOption = "Update";
+            btnDoUpdate.Text = attributes.downloadOption;
         }
 
         private void rbtnDownloadAndUpdate_CheckedChanged(object sender, EventArgs e)
         {
-            attributes.downloadOption = "DownloadAndUpdate";
+            attributes.downloadOption = "Download and Update";
+            btnDoUpdate.Text = attributes.downloadOption;
         }
 
 
         private void txtUpdateDir_TextChanged(object sender, EventArgs e)
         {
-
+            //Delete this later
         }
 
         //I think I want this instead of "TextChanged"
@@ -169,7 +176,35 @@ namespace OvergrowthAutoUpdater
                     txtUpdateDir.Text = attributes.updateDirectory; //put it back to what it was before
                 }
             } //end if
-        } //end txtUpdateDir_Leave
+        }//end txtUpdateDir_Leave
+
+        private void btnExit_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void btnExeBrowse_Click(object sender, EventArgs e)
+        {
+            exeFileDialog = opnFileDialogExe;
+        }
+
+        private void opnFileDialogExe_FileOk(object sender, CancelEventArgs e)
+        {
+            if (exeFileDialog.FileName.Contains("Overgrowth.exe"))
+            {
+                txtExeDir.Text = exeFileDialog.FileName;
+                attributes.exeDirectory = exeFileDialog.FileName;
+                attributes.exeDirectory.Remove(attributes.exeDirectory.IndexOf("Overgrowth.exe"));
+            }
+            else
+                //show error
+                txtExeDir.Text = "not an exe file";
+        } 
 
     } //end partial class
 } //end namespace

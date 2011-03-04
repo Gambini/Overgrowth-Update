@@ -13,15 +13,18 @@ namespace OvergrowthAutoUpdater
         {
             updateDirectory = Directory.GetCurrentDirectory() + "Updates\\";
             exeDirectory = "";
-            downloadOption = "DownloadAndUpdate";
+            downloadOption = "Download and Update";
+            hasUpdateFiles = false;
         }
 
         /// <summary> The directory that holds Overgrowth.exe. </summary>
         public string exeDirectory;
         ///<summary>The directory where all of the update .zip files are stored. </summary>
         public string updateDirectory;
-        ///<summary>Possible values: Download, Update, DownloadAndUpdate, corresponds to the download options on the form.</summary>
+        ///<summary>Possible values: Download, Update, Download and Update, corresponds to the download options on the form.</summary>
         public string downloadOption;
+        ///<summary>If the check box for having update files already downloaded is/was checked.</summary>
+        public bool hasUpdateFiles;
 
     }
 }

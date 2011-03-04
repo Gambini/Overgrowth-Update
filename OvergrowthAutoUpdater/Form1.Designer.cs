@@ -56,6 +56,9 @@
             this.btnDoUpdate = new System.Windows.Forms.Button();
             this.btnExit = new System.Windows.Forms.Button();
             this.lstUpdates = new System.Windows.Forms.ListBox();
+            this.opnFileDialogExe = new System.Windows.Forms.OpenFileDialog();
+            this.createBackupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lblCurrentVersion = new System.Windows.Forms.Label();
             this.sstripInfo.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.grpDownloadOptions.SuspendLayout();
@@ -88,6 +91,7 @@
             this.btnExeBrowse.TabIndex = 7;
             this.btnExeBrowse.Text = "Browse...";
             this.btnExeBrowse.UseVisualStyleBackColor = true;
+            this.btnExeBrowse.Click += new System.EventHandler(this.btnExeBrowse_Click);
             // 
             // lblUpdatePath
             // 
@@ -217,9 +221,12 @@
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
             this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // optionsToolStripMenuItem
             // 
+            this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.createBackupToolStripMenuItem});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.optionsToolStripMenuItem.Text = "Options";
@@ -296,6 +303,7 @@
             this.btnExit.TabIndex = 22;
             this.btnExit.Text = "Exit";
             this.btnExit.UseVisualStyleBackColor = true;
+            this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
             // 
             // lstUpdates
             // 
@@ -306,11 +314,36 @@
             this.lstUpdates.Sorted = true;
             this.lstUpdates.TabIndex = 23;
             // 
+            // opnFileDialogExe
+            // 
+            this.opnFileDialogExe.Filter = "\"Exe files|*.exe\"";
+            this.opnFileDialogExe.FileOk += new System.ComponentModel.CancelEventHandler(this.opnFileDialogExe_FileOk);
+            // 
+            // createBackupToolStripMenuItem
+            // 
+            this.createBackupToolStripMenuItem.Checked = true;
+            this.createBackupToolStripMenuItem.CheckOnClick = true;
+            this.createBackupToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.createBackupToolStripMenuItem.Name = "createBackupToolStripMenuItem";
+            this.createBackupToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.createBackupToolStripMenuItem.Text = "Create Backup?";
+            this.createBackupToolStripMenuItem.ToolTipText = "Creates a backup of every file that will be replaced in the update process.";
+            // 
+            // lblCurrentVersion
+            // 
+            this.lblCurrentVersion.AutoSize = true;
+            this.lblCurrentVersion.Location = new System.Drawing.Point(178, 28);
+            this.lblCurrentVersion.Name = "lblCurrentVersion";
+            this.lblCurrentVersion.Size = new System.Drawing.Size(136, 13);
+            this.lblCurrentVersion.TabIndex = 24;
+            this.lblCurrentVersion.Text = "Current Overgrowth version";
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(600, 442);
+            this.Controls.Add(this.lblCurrentVersion);
             this.Controls.Add(this.lstUpdates);
             this.Controls.Add(this.btnExit);
             this.Controls.Add(this.btnDoUpdate);
@@ -371,6 +404,9 @@
         private System.Windows.Forms.Button btnDoUpdate;
         private System.Windows.Forms.Button btnExit;
         private System.Windows.Forms.ListBox lstUpdates;
+        private System.Windows.Forms.OpenFileDialog opnFileDialogExe;
+        private System.Windows.Forms.ToolStripMenuItem createBackupToolStripMenuItem;
+        private System.Windows.Forms.Label lblCurrentVersion;
     }
 }
 
