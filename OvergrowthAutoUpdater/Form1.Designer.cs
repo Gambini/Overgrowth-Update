@@ -48,6 +48,8 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createBackupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.downloadSequentiallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.rbtnDownload = new System.Windows.Forms.RadioButton();
             this.rbtnUpdate = new System.Windows.Forms.RadioButton();
@@ -57,8 +59,8 @@
             this.btnExit = new System.Windows.Forms.Button();
             this.lstUpdates = new System.Windows.Forms.ListBox();
             this.opnFileDialogExe = new System.Windows.Forms.OpenFileDialog();
-            this.createBackupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lblCurrentVersion = new System.Windows.Forms.Label();
+            this.foldBrowserDialogUpdate = new System.Windows.Forms.FolderBrowserDialog();
             this.sstripInfo.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.grpDownloadOptions.SuspendLayout();
@@ -141,6 +143,7 @@
             this.btnUpdateDir.TabIndex = 10;
             this.btnUpdateDir.Text = "Browse...";
             this.btnUpdateDir.UseVisualStyleBackColor = true;
+            this.btnUpdateDir.Click += new System.EventHandler(this.btnUpdateDir_Click);
             // 
             // sstripInfo
             // 
@@ -226,10 +229,29 @@
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.createBackupToolStripMenuItem});
+            this.createBackupToolStripMenuItem,
+            this.downloadSequentiallyToolStripMenuItem});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.optionsToolStripMenuItem.Text = "Options";
+            // 
+            // createBackupToolStripMenuItem
+            // 
+            this.createBackupToolStripMenuItem.Checked = true;
+            this.createBackupToolStripMenuItem.CheckOnClick = true;
+            this.createBackupToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.createBackupToolStripMenuItem.Name = "createBackupToolStripMenuItem";
+            this.createBackupToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.createBackupToolStripMenuItem.Text = "Create Backup";
+            this.createBackupToolStripMenuItem.ToolTipText = "Creates a backup of every file that will be replaced in the update process.";
+            // 
+            // downloadSequentiallyToolStripMenuItem
+            // 
+            this.downloadSequentiallyToolStripMenuItem.CheckOnClick = true;
+            this.downloadSequentiallyToolStripMenuItem.Name = "downloadSequentiallyToolStripMenuItem";
+            this.downloadSequentiallyToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.downloadSequentiallyToolStripMenuItem.Text = "Download sequentially";
+            this.downloadSequentiallyToolStripMenuItem.ToolTipText = "Downloads the update files one at a time and in order, rather than all at once.";
             // 
             // aboutToolStripMenuItem
             // 
@@ -294,6 +316,7 @@
             this.btnDoUpdate.TabIndex = 21;
             this.btnDoUpdate.Text = "Download and Update";
             this.btnDoUpdate.UseVisualStyleBackColor = true;
+            this.btnDoUpdate.Click += new System.EventHandler(this.btnDoUpdate_Click);
             // 
             // btnExit
             // 
@@ -316,27 +339,21 @@
             // 
             // opnFileDialogExe
             // 
-            this.opnFileDialogExe.Filter = "\"Exe files|*.exe\"";
+            this.opnFileDialogExe.Filter = "Exe files|*.exe";
             this.opnFileDialogExe.FileOk += new System.ComponentModel.CancelEventHandler(this.opnFileDialogExe_FileOk);
-            // 
-            // createBackupToolStripMenuItem
-            // 
-            this.createBackupToolStripMenuItem.Checked = true;
-            this.createBackupToolStripMenuItem.CheckOnClick = true;
-            this.createBackupToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.createBackupToolStripMenuItem.Name = "createBackupToolStripMenuItem";
-            this.createBackupToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
-            this.createBackupToolStripMenuItem.Text = "Create Backup?";
-            this.createBackupToolStripMenuItem.ToolTipText = "Creates a backup of every file that will be replaced in the update process.";
             // 
             // lblCurrentVersion
             // 
             this.lblCurrentVersion.AutoSize = true;
             this.lblCurrentVersion.Location = new System.Drawing.Point(178, 28);
             this.lblCurrentVersion.Name = "lblCurrentVersion";
-            this.lblCurrentVersion.Size = new System.Drawing.Size(136, 13);
+            this.lblCurrentVersion.Size = new System.Drawing.Size(223, 13);
             this.lblCurrentVersion.TabIndex = 24;
-            this.lblCurrentVersion.Text = "Current Overgrowth version";
+            this.lblCurrentVersion.Text = "Current Overgrowth version: (no exe selected)";
+            // 
+            // foldBrowserDialogUpdate
+            // 
+            this.foldBrowserDialogUpdate.RootFolder = System.Environment.SpecialFolder.ProgramFiles;
             // 
             // frmMain
             // 
@@ -363,6 +380,7 @@
             this.MainMenuStrip = this.menuStrip;
             this.Name = "frmMain";
             this.Text = "Overgrowth Updater";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.sstripInfo.ResumeLayout(false);
             this.sstripInfo.PerformLayout();
@@ -407,6 +425,8 @@
         private System.Windows.Forms.OpenFileDialog opnFileDialogExe;
         private System.Windows.Forms.ToolStripMenuItem createBackupToolStripMenuItem;
         private System.Windows.Forms.Label lblCurrentVersion;
+        private System.Windows.Forms.ToolStripMenuItem downloadSequentiallyToolStripMenuItem;
+        private System.Windows.Forms.FolderBrowserDialog foldBrowserDialogUpdate;
     }
 }
 
