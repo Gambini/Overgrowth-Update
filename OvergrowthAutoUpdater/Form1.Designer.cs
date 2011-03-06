@@ -44,7 +44,6 @@
             this.dnu_lblDownloadProgress = new System.Windows.Forms.Label();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.somethingElseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -64,6 +63,7 @@
             this.lblUpdatesDownloaded = new System.Windows.Forms.Label();
             this.lstDownloadProgress = new System.Windows.Forms.ListBox();
             this.lblIndividualDownloadProgress = new System.Windows.Forms.Label();
+            this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.sstripInfo.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.grpDownloadOptions.SuspendLayout();
@@ -84,7 +84,7 @@
             this.txtExeDir.Location = new System.Drawing.Point(13, 47);
             this.txtExeDir.Name = "txtExeDir";
             this.txtExeDir.Size = new System.Drawing.Size(353, 20);
-            this.txtExeDir.TabIndex = 1;
+            this.txtExeDir.TabIndex = 0;
             this.txtExeDir.Text = "Example: C:\\Program Files\\Overgrowth\\Overgrowth.exe";
             this.Tooltip.SetToolTip(this.txtExeDir, "Make sure the last part points to a .exe file in your Overgrowth folder.");
             // 
@@ -93,7 +93,7 @@
             this.btnExeBrowse.Location = new System.Drawing.Point(372, 47);
             this.btnExeBrowse.Name = "btnExeBrowse";
             this.btnExeBrowse.Size = new System.Drawing.Size(75, 23);
-            this.btnExeBrowse.TabIndex = 7;
+            this.btnExeBrowse.TabIndex = 1;
             this.btnExeBrowse.Text = "Browse...";
             this.btnExeBrowse.UseVisualStyleBackColor = true;
             this.btnExeBrowse.Click += new System.EventHandler(this.btnExeBrowse_Click);
@@ -107,17 +107,19 @@
             this.lblUpdatePath.TabIndex = 8;
             this.lblUpdatePath.Text = "Where to download the update";
             this.Tooltip.SetToolTip(this.lblUpdatePath, "This is the folder that has all of the .zip update files. Do not unzip them, othe" +
-                    "rwise the update might not work");
+                    "rwise the update might not work. Do not have a any slash at the end, or it will " +
+                    "not work.");
             // 
             // txtUpdateDir
             // 
             this.txtUpdateDir.Location = new System.Drawing.Point(13, 113);
             this.txtUpdateDir.Name = "txtUpdateDir";
             this.txtUpdateDir.Size = new System.Drawing.Size(353, 20);
-            this.txtUpdateDir.TabIndex = 9;
+            this.txtUpdateDir.TabIndex = 2;
             this.txtUpdateDir.Text = "currentdirectory\\Updates\\";
             this.Tooltip.SetToolTip(this.txtUpdateDir, "This is the folder that has all of the .zip update files. Do not unzip them, othe" +
-                    "rwise the update might not work");
+                    "rwise the update might not work. Do not have a any slash at the end, or it will " +
+                    "not work.");
             this.txtUpdateDir.TextChanged += new System.EventHandler(this.txtUpdateDir_TextChanged);
             this.txtUpdateDir.Leave += new System.EventHandler(this.txtUpdateDir_Leave);
             // 
@@ -143,7 +145,7 @@
             this.btnUpdateDir.Location = new System.Drawing.Point(373, 113);
             this.btnUpdateDir.Name = "btnUpdateDir";
             this.btnUpdateDir.Size = new System.Drawing.Size(75, 23);
-            this.btnUpdateDir.TabIndex = 10;
+            this.btnUpdateDir.TabIndex = 3;
             this.btnUpdateDir.Text = "Browse...";
             this.btnUpdateDir.UseVisualStyleBackColor = true;
             this.btnUpdateDir.Click += new System.EventHandler(this.btnUpdateDir_Click);
@@ -204,28 +206,21 @@
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.somethingElseToolStripMenuItem,
             this.toolStripSeparator1,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
             // 
-            // somethingElseToolStripMenuItem
-            // 
-            this.somethingElseToolStripMenuItem.Name = "somethingElseToolStripMenuItem";
-            this.somethingElseToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
-            this.somethingElseToolStripMenuItem.Text = "Something Else";
-            // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(152, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -254,10 +249,13 @@
             this.downloadSequentiallyToolStripMenuItem.Name = "downloadSequentiallyToolStripMenuItem";
             this.downloadSequentiallyToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
             this.downloadSequentiallyToolStripMenuItem.Text = "Download sequentially";
-            this.downloadSequentiallyToolStripMenuItem.ToolTipText = "Downloads the update files one at a time and in order, rather than all at once.";
+            this.downloadSequentiallyToolStripMenuItem.ToolTipText = "(Not Implemented)Downloads the update files one at a time and in order, rather th" +
+                "an all at once.";
             // 
             // aboutToolStripMenuItem
             // 
+            this.aboutToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutToolStripMenuItem1});
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.aboutToolStripMenuItem.Text = "About";
@@ -268,7 +266,7 @@
             this.rbtnDownload.Location = new System.Drawing.Point(12, 19);
             this.rbtnDownload.Name = "rbtnDownload";
             this.rbtnDownload.Size = new System.Drawing.Size(73, 17);
-            this.rbtnDownload.TabIndex = 17;
+            this.rbtnDownload.TabIndex = 0;
             this.rbtnDownload.TabStop = true;
             this.rbtnDownload.Text = "Download";
             this.rbtnDownload.UseVisualStyleBackColor = true;
@@ -281,7 +279,7 @@
             this.rbtnUpdate.Location = new System.Drawing.Point(92, 19);
             this.rbtnUpdate.Name = "rbtnUpdate";
             this.rbtnUpdate.Size = new System.Drawing.Size(60, 17);
-            this.rbtnUpdate.TabIndex = 18;
+            this.rbtnUpdate.TabIndex = 1;
             this.rbtnUpdate.TabStop = true;
             this.rbtnUpdate.Text = "Update";
             this.rbtnUpdate.UseVisualStyleBackColor = true;
@@ -293,7 +291,7 @@
             this.rbtnDownloadAndUpdate.Location = new System.Drawing.Point(159, 19);
             this.rbtnDownloadAndUpdate.Name = "rbtnDownloadAndUpdate";
             this.rbtnDownloadAndUpdate.Size = new System.Drawing.Size(132, 17);
-            this.rbtnDownloadAndUpdate.TabIndex = 19;
+            this.rbtnDownloadAndUpdate.TabIndex = 2;
             this.rbtnDownloadAndUpdate.TabStop = true;
             this.rbtnDownloadAndUpdate.Text = "Download and Update";
             this.rbtnDownloadAndUpdate.UseVisualStyleBackColor = true;
@@ -307,7 +305,7 @@
             this.grpDownloadOptions.Location = new System.Drawing.Point(12, 371);
             this.grpDownloadOptions.Name = "grpDownloadOptions";
             this.grpDownloadOptions.Size = new System.Drawing.Size(295, 41);
-            this.grpDownloadOptions.TabIndex = 20;
+            this.grpDownloadOptions.TabIndex = 6;
             this.grpDownloadOptions.TabStop = false;
             this.grpDownloadOptions.Text = "Download Options";
             // 
@@ -316,17 +314,18 @@
             this.btnDoUpdate.Location = new System.Drawing.Point(424, 389);
             this.btnDoUpdate.Name = "btnDoUpdate";
             this.btnDoUpdate.Size = new System.Drawing.Size(164, 23);
-            this.btnDoUpdate.TabIndex = 21;
+            this.btnDoUpdate.TabIndex = 8;
             this.btnDoUpdate.Text = "Download and Update";
             this.btnDoUpdate.UseVisualStyleBackColor = true;
             this.btnDoUpdate.Click += new System.EventHandler(this.btnDoUpdate_Click);
             // 
             // btnExit
             // 
+            this.btnExit.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnExit.Location = new System.Drawing.Point(343, 389);
             this.btnExit.Name = "btnExit";
             this.btnExit.Size = new System.Drawing.Size(75, 23);
-            this.btnExit.TabIndex = 22;
+            this.btnExit.TabIndex = 7;
             this.btnExit.Text = "Exit";
             this.btnExit.UseVisualStyleBackColor = true;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
@@ -338,7 +337,7 @@
             this.lstUpdates.Name = "lstUpdates";
             this.lstUpdates.Size = new System.Drawing.Size(202, 108);
             this.lstUpdates.Sorted = true;
-            this.lstUpdates.TabIndex = 23;
+            this.lstUpdates.TabIndex = 4;
             // 
             // opnFileDialogExe
             // 
@@ -374,7 +373,7 @@
             this.lstDownloadProgress.Location = new System.Drawing.Point(244, 194);
             this.lstDownloadProgress.Name = "lstDownloadProgress";
             this.lstDownloadProgress.Size = new System.Drawing.Size(204, 108);
-            this.lstDownloadProgress.TabIndex = 26;
+            this.lstDownloadProgress.TabIndex = 5;
             // 
             // lblIndividualDownloadProgress
             // 
@@ -386,10 +385,18 @@
             this.lblIndividualDownloadProgress.TabIndex = 27;
             this.lblIndividualDownloadProgress.Text = "Download progress";
             // 
+            // aboutToolStripMenuItem1
+            // 
+            this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
+            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem1.Text = "About";
+            // 
             // frmMain
             // 
+            this.AcceptButton = this.btnDoUpdate;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.btnExit;
             this.ClientSize = new System.Drawing.Size(600, 442);
             this.Controls.Add(this.lblIndividualDownloadProgress);
             this.Controls.Add(this.lstDownloadProgress);
@@ -411,6 +418,7 @@
             this.Controls.Add(this.btnExeBrowse);
             this.Controls.Add(this.txtExeDir);
             this.Controls.Add(this.lblDirExe);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.MainMenuStrip = this.menuStrip;
             this.Name = "frmMain";
             this.Text = "Overgrowth Updater";
@@ -444,7 +452,6 @@
         private System.Windows.Forms.Label dnu_lblDownloadProgress;
         private System.Windows.Forms.MenuStrip menuStrip;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem somethingElseToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
@@ -464,6 +471,7 @@
         private System.Windows.Forms.Label lblUpdatesDownloaded;
         private System.Windows.Forms.ListBox lstDownloadProgress;
         private System.Windows.Forms.Label lblIndividualDownloadProgress;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem1;
     }
 }
 

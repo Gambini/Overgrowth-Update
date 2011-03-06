@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Collections;
 using System.IO;
 using System.Net;
+using Ionic.Zip;
 
 ///<summary>   </summary>
 namespace OvergrowthAutoUpdater
@@ -20,15 +21,15 @@ namespace OvergrowthAutoUpdater
         public WebClient wclient;
         public bool accountedFor;
         public int alpha;
-        //default constructor
-        //public Download() { totalSize = 0; completed = 0; }
+
         public Download(WebClient wc, int a)
         { wclient = wc; totalSize = 0; completed = 0; accountedFor = false; alpha = a; }
+
         public override string ToString()
         {
             int percent;
             if (totalSize == 0) percent = 0;
-            else percent = (int)((double)(completed / totalSize)*100);
+            else percent = (int)(((double)completed / (double)totalSize) * 100);
             return "a" + alpha + ".zip.... " + percent + "%";
         }
     }
@@ -54,15 +55,15 @@ namespace OvergrowthAutoUpdater
         public string currentVersion; // = "a118";
         ///<summary>The latest version available to download.</summary>
         public int latestVersion;
-        ///<summary>A variable used if the sequential download option is true</summary>
-        private bool canDownloadNextFile = true;
-        /// <summary> Holds a list of keys that have been taken into account for the total size
-        public ArrayList keys;
+        ////<summary>A variable used if the sequential download option is true</summary>
+        //private bool canDownloadNextFile = true;
         /// <summary>Key is the version of the alpha minus 'a', value is of "Download" type</summary> 
         //public SortedList clients;
         public ArrayList clients;
         public long totalUpdateSize;
         public long totalUpdateRecieved;
+        /// <summary>true if the program is allowed to apply the update</summary>
+        public bool canApplyUpdate = false;
 
 
         public frmMain()
@@ -88,7 +89,12 @@ namespace OvergrowthAutoUpdater
 
             //Setting the options to what the user had before. 
             txtUpdateDir.Text = attributes.updateDirectory;
-            if (attributes.exeDirectory != "") txtExeDir.Text = attributes.exeDirectory + "Overgrowth.exe";
+            if (attributes.exeDirectory != "")
+            {
+                currentVersion = GetCurrentVersion();
+                lblCurrentVersion.Text = "Current Overgrowth version: " + currentVersion;
+                txtExeDir.Text = attributes.exeDirectory + "Overgrowth.exe";
+            }
             cboxHaveUpdate.Checked = attributes.hasUpdateFiles;
             createBackupToolStripMenuItem.Checked = attributes.createBackup;
             downloadSequentiallyToolStripMenuItem.Checked = attributes.sequentialDownload;
@@ -148,7 +154,7 @@ namespace OvergrowthAutoUpdater
             catch (Exception ex)
             { 
                 //TODO: Catch some shit.
-                MessageBox.Show(ex.Message);
+                MessageBox.Show("Something happened in the ReadConfigFile function" + ex.Message);
             }
         }//end ReadConfigFile
 
@@ -162,6 +168,7 @@ namespace OvergrowthAutoUpdater
                 rbtnDownloadAndUpdate.Enabled = false;
                 rbtnUpdate.Enabled = true;
                 rbtnUpdate.Checked = true;
+                canApplyUpdate = true;
                 UpdateListBox();
             }
             else
@@ -170,6 +177,7 @@ namespace OvergrowthAutoUpdater
                 rbtnDownloadAndUpdate.Enabled = true;
                 rbtnDownloadAndUpdate.Checked = true;
                 rbtnUpdate.Enabled = false;
+                canApplyUpdate = false; // could be bad if the user checks it during download
                 lstUpdates.Items.Clear(); //empty the list box so that the user doesn't think the option is checked
             }
         }
@@ -185,13 +193,15 @@ namespace OvergrowthAutoUpdater
                 if (updateZips.Length == 0) return; //don't put anything in the list box if no update files are there
                 for (int i = 0; i < updateZips.Length; i++)
                 {
-                    lstUpdates.Items.AddRange(updateZips); //I hope this is in order.
+                    //the '-4' at the end makes it so it doesn't remove the 'a###' part. If alpha versions go into the 1000's
+                    //then this value will have to be changed
+                    lstUpdates.Items.Add(updateZips[i].Remove(0, updateZips[i].IndexOf(".zip")-4)); //I hope this is in order.
                 }
             }
             catch (Exception ex)
             {
                 //TODO: Catch lots of shit
-                MessageBox.Show("Something happened in the updateListBox function");
+                MessageBox.Show("Something happened in the updateListBox function\n" + ex.Message);
             }
             
         }
@@ -312,29 +322,225 @@ namespace OvergrowthAutoUpdater
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             attributes.WriteToFile(configPath);
+
+            //if it is downloading an update
+            if (totalUpdateSize != 0 && totalUpdateRecieved != totalUpdateSize)
+            {
+                foreach (Download dl in clients)
+                    dl.wclient.CancelAsync();
+            }
         }
 
 
         ///<summary>This is the "Do everything with given info" button.</summary>
         private void btnDoUpdate_Click(object sender, EventArgs e)
         {
-            //so the user doesn't change the options in the middle of the process
-            rbtnDownload.Enabled = false;
-            rbtnDownloadAndUpdate.Enabled = false;
-            rbtnUpdate.Enabled = false;
+            toggleDownloadOptions(false);
+            cboxHaveUpdate.Enabled = false;
+
+            latestVersion = FindLatestVersion(int.Parse(GetCurrentVersion().Remove(0,1)));
 
             if (rbtnDownload.Checked || rbtnDownloadAndUpdate.Checked)
                 DownloadUpdateFiles();
             if (rbtnUpdate.Checked || rbtnDownloadAndUpdate.Checked)
                 DoUpdateFiles();
 
+
+            lblCurrentVersion.Text = "Current version: " + GetCurrentVersion();
+            toggleDownloadOptions(true);
+            cboxHaveUpdate.Enabled = true;
+
+        }
+
+        private void toggleDownloadOptions(bool enabled)
+        {
+            //so the user doesn't change the options in the middle of the process
+            rbtnDownload.Enabled = enabled;
+            rbtnDownloadAndUpdate.Enabled = enabled;
+            rbtnUpdate.Enabled = enabled;
         }
 
 
         private void DoUpdateFiles()
         {
-            //hfpaeifa
+            if (!canApplyUpdate)
+                return;
+            int next = 0; //the alpha version we are looking to update to
+            currentVersion = GetCurrentVersion(); //so we have the most up to date version
+            int current = int.Parse(currentVersion.Remove(0,1));
+
+            updateZips = Directory.GetFiles(attributes.updateDirectory + "\\", "a*.zip");
+            if (updateZips.Length == 0) return; //don't put anything in the list box if no update files are there
+            for (int i = 0; i < updateZips.Length; i++)
+            {
+                next = current += 1;
+                if (File.Exists(attributes.updateDirectory + "\\a" + next + ".zip"))
+                    if (next <= latestVersion)
+                        ReplaceFiles(attributes.updateDirectory + "\\a" + next + ".zip");
+                    else
+                        return;
+                else
+                {
+                    MessageBox.Show("Error in DoUpdateFiles function.\n" +
+                        "Could not find update file " + attributes.updateDirectory + "a" + next + ".zip\n" +
+                        "You will be at version a" + (next - 1) + " until the update file for a" + next + " is found.");
+                    return;
+                }
+            }
         }
+
+
+        /// <summary>Does the actual file operations to apply the update</summary>
+        /// <param name="path">The path of the .zip file, including the .zip</param>
+        private void ReplaceFiles(string path)
+        {
+            string[] updateFiles; //The file names and paths taken from the .zip folder
+            string[] currentFiles; //The file names of the currently installed version
+            string[] updateDirectories;
+            string[] currentDirectories;
+            ArrayList commonDirectories = new ArrayList();
+            ArrayList newFiles = new ArrayList();
+            ZipFile backup;
+
+            using (ZipFile zip = ZipFile.Read(path))
+            {
+                zip.ExtractAll(path.Remove(path.IndexOf(".zip")));
+                zip.Dispose();
+            }
+
+            path = path.Remove(path.IndexOf(".zip")) + "\\update\\";
+
+            try
+            {
+                //get all of the directories from each one.
+                updateDirectories = Directory.GetDirectories(path, "*", SearchOption.AllDirectories);
+                currentDirectories = Directory.GetDirectories(attributes.exeDirectory, "*", SearchOption.AllDirectories);
+
+                if (updateDirectories.Length == 0 || currentDirectories.Length == 0) return;
+                //go through each of the directories and compare them. Mightily ineffiecient, but effective
+                for (int u = 0; u < updateDirectories.Length; u++)
+                {
+                    for (int c = 0; c < currentDirectories.Length; c++)
+                    {
+                        string b = updateDirectories[u].Remove(0, path.Length);
+                        string d = currentDirectories[c].Remove(0, attributes.exeDirectory.Length);
+                        if (updateDirectories[u].Remove(0, path.Length) == currentDirectories[c].Remove(0, attributes.exeDirectory.Length))
+                            commonDirectories.Add(updateDirectories[u].Remove(0, path.Length));//does not end with \\
+                    }
+                }
+
+                if (attributes.createBackup)
+                    backup = new ZipFile(path + "backupfiles.zip");
+                else backup = new ZipFile();//not going to use it
+
+                foreach (string dir in commonDirectories)
+                {
+                    if (attributes.createBackup)
+                        backup.AddDirectoryByName(dir);
+
+                    updateFiles = Directory.GetFiles(path + dir + "\\");
+                    currentFiles = Directory.GetFiles(attributes.exeDirectory + dir + "\\");
+                    if (updateFiles.Length == 0 || currentFiles.Length == 0) continue;
+
+                    //go through all of the files
+                    for (int u = 0; u < updateFiles.Length; u++)
+                    {
+                        for (int c = 0; c < currentFiles.Length; c++)
+                        {
+                            string a = updateFiles[u].Remove(0, path.Length + dir.Length);
+                            string b = currentFiles[c].Remove(0, attributes.exeDirectory.Length + dir.Length);
+                            //if the files are the same
+                            if (updateFiles[u].Remove(0, path.Length + dir.Length) == currentFiles[c].Remove(0, attributes.exeDirectory.Length + dir.Length))
+                            {
+                                if (attributes.createBackup)
+                                    backup.AddFile(currentFiles[c], dir);
+
+                                File.Delete(currentFiles[c]); //delete the file, so we don't get errors from the next line
+                                File.Copy(updateFiles[u], currentFiles[c]);
+                            }
+                            else //it is a new file
+                            {  
+                                //we need this check because it will keep on iterating through the non-common files
+                                if(!File.Exists(updateFiles[u]))
+                                {
+                                    //                                                              The name of the file
+                                    File.Copy(updateFiles[u], attributes.exeDirectory + dir + "\\" + updateFiles[u].Remove(0, path.Length + dir.Length));
+                                }
+                            }
+                        }
+                    } //end outer 'for'
+                }//end foreach
+
+                //copying over the windows only stuff
+                //because we can only do one pattern at a time, going to have some copypasta code
+                path = path + "Windows\\";
+                updateFiles = Directory.GetFiles(path, "*.exe");
+                currentFiles = Directory.GetFiles(attributes.exeDirectory, "*.exe");
+                //go through all of the files
+                for (int u = 0; u < updateFiles.Length; u++)
+                {
+                    for (int c = 0; c < currentFiles.Length; c++)
+                    {
+                        string a = updateFiles[u].Remove(0, path.Length);
+                        string b = currentFiles[c].Remove(0, attributes.exeDirectory.Length);
+                        //if the files are the same
+                        if (updateFiles[u].Remove(0, path.Length) == currentFiles[c].Remove(0, attributes.exeDirectory.Length))
+                        {
+                            if (attributes.createBackup)
+                                backup.AddFile(currentFiles[c]);
+
+                            File.Delete(currentFiles[c]); //delete the file, so we don't get errors from the next line
+                            File.Copy(updateFiles[u], currentFiles[c]);
+                        }
+                        else //it is a new file
+                        {
+                            if (!File.Exists(updateFiles[u]))
+                            {
+                                //                                                              The name of the file
+                                File.Copy(updateFiles[u], attributes.exeDirectory + updateFiles[u].Remove(0, path.Length));
+                            }
+                        }
+                    }
+                } //end outer 'for'
+
+                //I feel really bad for copypasting a huge block. 
+                updateFiles = Directory.GetFiles(path, "*.dll");
+                currentFiles = Directory.GetFiles(attributes.exeDirectory, "*.dll");
+                //go through all of the files
+                for (int u = 0; u < updateFiles.Length; u++)
+                {
+                    for (int c = 0; c < currentFiles.Length; c++)
+                    {
+                        string a = updateFiles[u].Remove(0, path.Length);
+                        string b = currentFiles[c].Remove(0, attributes.exeDirectory.Length);
+                        //if the files are the same
+                        if (updateFiles[u].Remove(0, path.Length) == currentFiles[c].Remove(0, attributes.exeDirectory.Length))
+                        {
+                            if (attributes.createBackup)
+                                backup.AddFile(currentFiles[c]);
+
+                            File.Delete(currentFiles[c]); //delete the file, so we don't get errors from the next line
+                            File.Copy(updateFiles[u], currentFiles[c]);
+                        }
+                        else //it is a new file
+                        {
+                            if (!File.Exists(updateFiles[u]))
+                            {
+                                //                                                              The name of the file
+                                File.Copy(updateFiles[u], attributes.exeDirectory + updateFiles[u].Remove(0, path.Length));
+                            }
+                        }
+                    }
+                } //end outer 'for'
+
+                if (attributes.createBackup)
+                    backup.Save();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("something happened in the ReplaceFiles function\n" + ex.Message);
+            }
+        } //end ReplaceFiles
 
 
         private void DownloadUpdateFiles()
@@ -345,14 +551,14 @@ namespace OvergrowthAutoUpdater
             string tempCurrent = currentVersion;
             tempCurrent = tempCurrent.Remove(0, 1); //shoud just remove the'a'
             int current = int.Parse(tempCurrent); //TryParse maybe?
-            latestVersion = FindLatestVersion(current);
             if (current == latestVersion)
             {
                 MessageBox.Show("You are already at the newest version.");
+                toggleDownloadOptions(true);
+                cboxHaveUpdate.Enabled = true;
                 return;
             }
 
-            //clients = new SortedList();
             clients = new ArrayList();
             try
             {
@@ -362,8 +568,6 @@ namespace OvergrowthAutoUpdater
                     wclient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadFileCompleted);
                     wclient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgressChanged);
 
-                    
-                    //clients.Add(i, new Download(wclient, i));
                     clients.Add(new Download(wclient, i));
                 }
 
@@ -372,7 +576,6 @@ namespace OvergrowthAutoUpdater
                 sstriplblStatus.Text = "Downloading updates";
                 foreach (Download dl in clients)
                 {
-                    //Download dl = (Download)de.Value;
                     dl.wclient.BaseAddress = updateURL + "a" + dl.alpha + ".zip";
                     //because DlFileAsync combines BaseAddress with the adress given, I can create an empty uri
                     dl.wclient.DownloadFileAsync(new Uri("", UriKind.Relative), @attributes.updateDirectory + "\\a" + dl.alpha + ".zip");
@@ -390,7 +593,7 @@ namespace OvergrowthAutoUpdater
         ///<summary>Helper function for DownloadUpdateFiles. It gets the latest alpha version minus the 'a' and '.zip'</summary>
         private int FindLatestVersion(int current) 
         {
-            int latest = 115;//current;
+            int latest = current;
 
             //check for a httprequest from an incremental number starting from the current version
             try
@@ -405,7 +608,7 @@ namespace OvergrowthAutoUpdater
                     sstripInfo.Text = "Requesting status of " + updateURL + "a" + latest + ".zip";
                     res = (HttpWebResponse)req.GetResponse();
                 }
-                return latest -= 1; //I think it is -=1. 
+                return latest -= 1;
             }
             catch (Exception ex) //comes here when the file doesn't exist on the site.
             {
@@ -421,7 +624,6 @@ namespace OvergrowthAutoUpdater
         {
 
             int index = GetDownloadFromWebClient((WebClient)sender);
-            //Download dld = (Download)clients.GetByIndex(index); //is this making a copy of the object?
             Download dld = (Download)clients[index]; //is this creating a copy?
             if (!dld.accountedFor)
             {
@@ -442,14 +644,29 @@ namespace OvergrowthAutoUpdater
             }
 
             totalUpdateRecieved = tempTotal;
-            pbarDownload.Increment((int)((double)(totalUpdateRecieved / totalUpdateSize)*100));
-            lblDownloadProgress.Text = "" + (int)((double)(totalUpdateRecieved / totalUpdateSize)*100) + "%";
-            //lstDownloadProgress.Refresh(); //so we get updated percentages in real time
+            pbarDownload.Value = (int)(((double)totalUpdateRecieved / (double)totalUpdateSize) * 100);
+            lblDownloadProgress.Text = "" + (int)(((double)totalUpdateRecieved / (double)totalUpdateSize) * 100) + "%";
         }
 
 
         private void DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
         {
+            if (e.Cancelled) //don't do anything if the operation was cancelled
+                return;
+
+            //visual stuff
+            int index = GetDownloadFromWebClient((WebClient)sender);
+            Download dl = (Download)clients[index];            
+            lstUpdates.Items.Add("a" + dl.alpha + ".zip");
+            
+            if (lstUpdates.Items.Count == clients.Count) //if all of the files have finished downloading
+            {
+                toggleDownloadOptions(true);
+                cboxHaveUpdate.Enabled = true;
+                canApplyUpdate = true;
+                if( attributes.downloadOption == "Download and Update" )
+                    DoUpdateFiles();
+            }
 
         }
 
@@ -468,18 +685,29 @@ namespace OvergrowthAutoUpdater
                 while (!sread.EndOfStream)
                 {
                     line = sread.ReadLine();
-                    data = line.Split( delim );
+                    data = line.Split(delim);
 
                     if (data[1] == "shortname")
+                    {
+                        sread.Close();
                         return data[2];
+                    }
                 }
                 sread.Close();
 
-                return null;                
+                return null;
+            }
+            catch (FileNotFoundException fnfex)
+            {
+                MessageBox.Show("Error in the GetCurrentVersion function.\n" +
+                    "The version.xml file could not be found, so the rest of the program will likely not work. " +
+                    "Please make sure that folder where Overgrowth.exe is in has a /Data/version.xml file.\n " +
+                    ".Net error message: " + fnfex.Message);
+                return null;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Something happened in the GetCurrentVersion function"); 
+                MessageBox.Show("Something happened in the GetCurrentVersion function.\n" + ex.Message);
                 return null;
                 //TODO: Catch some shit
             }
