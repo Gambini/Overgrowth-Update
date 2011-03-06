@@ -13,6 +13,26 @@ using System.Net;
 ///<summary>   </summary>
 namespace OvergrowthAutoUpdater
 {
+    struct Download
+    {
+        public long totalSize;
+        public long completed;
+        public WebClient wclient;
+        public bool accountedFor;
+        public int alpha;
+        //default constructor
+        //public Download() { totalSize = 0; completed = 0; }
+        public Download(WebClient wc, int a)
+        { wclient = wc; totalSize = 0; completed = 0; accountedFor = false; alpha = a; }
+        public override string ToString()
+        {
+            int percent;
+            if (totalSize == 0) percent = 0;
+            else percent = (int)((double)(completed / totalSize)*100);
+            return "a" + alpha + ".zip.... " + percent + "%";
+        }
+    }
+
     public partial class frmMain : Form
     {
 
@@ -36,17 +56,32 @@ namespace OvergrowthAutoUpdater
         public int latestVersion;
         ///<summary>A variable used if the sequential download option is true</summary>
         private bool canDownloadNextFile = true;
+        /// <summary> Holds a list of keys that have been taken into account for the total size
+        public ArrayList keys;
+        /// <summary>Key is the version of the alpha minus 'a', value is of "Download" type</summary> 
+        //public SortedList clients;
+        public ArrayList clients;
+        public long totalUpdateSize;
+        public long totalUpdateRecieved;
+
 
         public frmMain()
         {
             InitializeComponent();
+            
+            firstTime = false;
+            //updateSize = new SortedList();
+            totalUpdateSize = 0;
+            totalUpdateRecieved = 0;
         }
+
 
         private void toolTip1_Popup(object sender, PopupEventArgs e)
         {
             //I'll delete this later
         }
 
+        
         private void Form1_Load(object sender, EventArgs e)
         {
             ReadConfigFile(configPath); //gets the persistant data
@@ -58,7 +93,7 @@ namespace OvergrowthAutoUpdater
             createBackupToolStripMenuItem.Checked = attributes.createBackup;
             downloadSequentiallyToolStripMenuItem.Checked = attributes.sequentialDownload;
             
-            firstTime = false;
+
         }
 
 
@@ -139,6 +174,7 @@ namespace OvergrowthAutoUpdater
             }
         }
 
+
         ///<summary>When the user checks the box for them already having update files, this function
         /// lists all of the update files in the folder. Might highlight which ones will be used?</summary>
         private void UpdateListBox()
@@ -155,6 +191,7 @@ namespace OvergrowthAutoUpdater
             catch (Exception ex)
             {
                 //TODO: Catch lots of shit
+                MessageBox.Show("Something happened in the updateListBox function");
             }
             
         }
@@ -184,6 +221,7 @@ namespace OvergrowthAutoUpdater
             //Delete this later
         }
 
+
         //I think I want this instead of "TextChanged"
         private void txtUpdateDir_Leave(object sender, EventArgs e)
         {
@@ -207,6 +245,7 @@ namespace OvergrowthAutoUpdater
             } //end if
         }//end txtUpdateDir_Leave
 
+
         private void btnExit_Click(object sender, EventArgs e)
         {
             this.Close();
@@ -216,6 +255,7 @@ namespace OvergrowthAutoUpdater
         {
             this.Close();
         }
+
 
         private void btnExeBrowse_Click(object sender, EventArgs e)
         {
@@ -268,6 +308,7 @@ namespace OvergrowthAutoUpdater
             }
         }
 
+
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             attributes.WriteToFile(configPath);
@@ -289,20 +330,30 @@ namespace OvergrowthAutoUpdater
 
         }
 
+
         private void DoUpdateFiles()
         {
             //hfpaeifa
         }
 
+
         private void DownloadUpdateFiles()
         {
             //get a just the number of the current version
+            //temporary for now. Make this not have to be done in two places
+            currentVersion = GetCurrentVersion();
             string tempCurrent = currentVersion;
             tempCurrent = tempCurrent.Remove(0, 1); //shoud just remove the'a'
             int current = int.Parse(tempCurrent); //TryParse maybe?
             latestVersion = FindLatestVersion(current);
+            if (current == latestVersion)
+            {
+                MessageBox.Show("You are already at the newest version.");
+                return;
+            }
 
-            ArrayList clients = new ArrayList();
+            //clients = new SortedList();
+            clients = new ArrayList();
             try
             {
                 for (int i = ++current; i <= latestVersion; i++)
@@ -311,48 +362,97 @@ namespace OvergrowthAutoUpdater
                     wclient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadFileCompleted);
                     wclient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgressChanged);
 
-                    clients.Insert(i, wclient); //is it bad to leave like 100 elements empty?
+                    
+                    //clients.Add(i, new Download(wclient, i));
+                    clients.Add(new Download(wclient, i));
                 }
-                clients.Sort(); //so we download them in order
 
-                foreach (WebClient wclient in clients)
+                lstDownloadProgress.Enabled = true;
+                lblIndividualDownloadProgress.Enabled = true;
+                sstriplblStatus.Text = "Downloading updates";
+                foreach (Download dl in clients)
                 {
-                    int i = clients.LastIndexOf(wclient, current); //start searching from the current alpha version, so we don't go over like 100 empty items
-                    wclient.DownloadFileAsync(new Uri(updateURL + "a" + i + ".zip"), @attributes.updateDirectory + "a" + i + ".zip");
+                    //Download dl = (Download)de.Value;
+                    dl.wclient.BaseAddress = updateURL + "a" + dl.alpha + ".zip";
+                    //because DlFileAsync combines BaseAddress with the adress given, I can create an empty uri
+                    dl.wclient.DownloadFileAsync(new Uri("", UriKind.Relative), @attributes.updateDirectory + "\\a" + dl.alpha + ".zip");
+                    lstDownloadProgress.Items.Add(dl);
                 }
             }
             catch (Exception ex)
             {
-
+                MessageBox.Show("Something happened in the DownloadUpdateFiles function.\n" +
+                    ex.Message);
             }
         } //end DownloadUpdateFiles
+
 
         ///<summary>Helper function for DownloadUpdateFiles. It gets the latest alpha version minus the 'a' and '.zip'</summary>
         private int FindLatestVersion(int current) 
         {
-            int latest = current;
+            int latest = 115;//current;
 
             //check for a httprequest from an incremental number starting from the current version
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(updateURL + "a" + latest + ".zip"); //I'm going to assume that the current version is there
-            HttpWebResponse res = (HttpWebResponse)req.GetResponse();
-            while (res.StatusCode == HttpStatusCode.OK)
+            try
             {
-                req = (HttpWebRequest)WebRequest.Create(updateURL + "a" + (++latest) + ".zip");
-                res = (HttpWebResponse)req.GetResponse(); //ERRORS when it gets to 120. WHY????? 
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(updateURL + "a" + latest + ".zip"); //I'm going to assume that the current version is there
+                HttpWebResponse res = (HttpWebResponse)req.GetResponse();
+                while (res.StatusCode == HttpStatusCode.OK)
+                {
+                    req.Abort();
+                    res.Close();
+                    req = (HttpWebRequest)WebRequest.Create(updateURL + "a" + (++latest) + ".zip");
+                    sstripInfo.Text = "Requesting status of " + updateURL + "a" + latest + ".zip";
+                    res = (HttpWebResponse)req.GetResponse();
+                }
+                return latest -= 1; //I think it is -=1. 
             }
-            return latest -= 1; //I think it is -=1.             
+            catch (Exception ex) //comes here when the file doesn't exist on the site.
+            {
+                //do some extra error checking. for now, I'm going to assume that everything worked fine
+                sstripInfo.Text = "Idle";
+                return latest -= 1;
+
+            }
         }
 
 
         private void DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            string b = "a 0" + "a";
+
+            int index = GetDownloadFromWebClient((WebClient)sender);
+            //Download dld = (Download)clients.GetByIndex(index); //is this making a copy of the object?
+            Download dld = (Download)clients[index]; //is this creating a copy?
+            if (!dld.accountedFor)
+            {
+                dld.totalSize = e.TotalBytesToReceive;
+                totalUpdateSize += e.TotalBytesToReceive;
+                dld.accountedFor = true;
+            }
+            dld.completed = e.BytesReceived;
+            clients[index] = dld; // if it is making a copy, then put the copy into the array
+
+            long tempTotal = 0;
+            lstDownloadProgress.Items.Clear();
+            //Should I make this next part thread safe? It isn't really an exact science, so I don't think it matters
+            foreach (Download dl in clients)
+            {
+                tempTotal += dl.completed;
+                lstDownloadProgress.Items.Add(dl);
+            }
+
+            totalUpdateRecieved = tempTotal;
+            pbarDownload.Increment((int)((double)(totalUpdateRecieved / totalUpdateSize)*100));
+            lblDownloadProgress.Text = "" + (int)((double)(totalUpdateRecieved / totalUpdateSize)*100) + "%";
+            //lstDownloadProgress.Refresh(); //so we get updated percentages in real time
         }
+
 
         private void DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
         {
 
         }
+
 
         private string GetCurrentVersion()
         {
@@ -373,14 +473,37 @@ namespace OvergrowthAutoUpdater
                     if (data[1] == "shortname")
                         return data[2];
                 }
+                sread.Close();
 
                 return null;                
             }
             catch (Exception ex)
             {
+                MessageBox.Show("Something happened in the GetCurrentVersion function"); 
                 return null;
                 //TODO: Catch some shit
             }
         } //end GetCurrentVersion
+
+
+        ///<summary>Returns an index obtained from the clients list</summary>
+        private int GetDownloadFromWebClient(WebClient wclient)
+        {
+            if (clients.Count == 0)
+                throw new IndexOutOfRangeException("There are no elements in the client list");
+            else if (clients.Count == 1)
+                return 0;
+            else
+            {
+                Download dl;
+                for (int i = 0; i < clients.Count; i++)
+                {
+                    dl = (Download)clients[i];
+                    if (dl.wclient.BaseAddress == wclient.BaseAddress)
+                        return i;
+                }
+            }
+            throw new KeyNotFoundException("The Web Client given wasn't in the clients list");
+        }
     } //end partial class
 } //end namespace

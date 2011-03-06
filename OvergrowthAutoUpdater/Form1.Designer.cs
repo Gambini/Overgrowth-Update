@@ -61,6 +61,9 @@
             this.opnFileDialogExe = new System.Windows.Forms.OpenFileDialog();
             this.lblCurrentVersion = new System.Windows.Forms.Label();
             this.foldBrowserDialogUpdate = new System.Windows.Forms.FolderBrowserDialog();
+            this.lblUpdatesDownloaded = new System.Windows.Forms.Label();
+            this.lstDownloadProgress = new System.Windows.Forms.ListBox();
+            this.lblIndividualDownloadProgress = new System.Windows.Forms.Label();
             this.sstripInfo.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.grpDownloadOptions.SuspendLayout();
@@ -331,7 +334,7 @@
             // lstUpdates
             // 
             this.lstUpdates.FormattingEnabled = true;
-            this.lstUpdates.Location = new System.Drawing.Point(12, 177);
+            this.lstUpdates.Location = new System.Drawing.Point(12, 194);
             this.lstUpdates.Name = "lstUpdates";
             this.lstUpdates.Size = new System.Drawing.Size(202, 108);
             this.lstUpdates.Sorted = true;
@@ -355,11 +358,42 @@
             // 
             this.foldBrowserDialogUpdate.RootFolder = System.Environment.SpecialFolder.ProgramFiles;
             // 
+            // lblUpdatesDownloaded
+            // 
+            this.lblUpdatesDownloaded.AutoSize = true;
+            this.lblUpdatesDownloaded.Location = new System.Drawing.Point(13, 175);
+            this.lblUpdatesDownloaded.Name = "lblUpdatesDownloaded";
+            this.lblUpdatesDownloaded.Size = new System.Drawing.Size(108, 13);
+            this.lblUpdatesDownloaded.TabIndex = 25;
+            this.lblUpdatesDownloaded.Text = "Updates downloaded";
+            // 
+            // lstDownloadProgress
+            // 
+            this.lstDownloadProgress.Enabled = false;
+            this.lstDownloadProgress.FormattingEnabled = true;
+            this.lstDownloadProgress.Location = new System.Drawing.Point(244, 194);
+            this.lstDownloadProgress.Name = "lstDownloadProgress";
+            this.lstDownloadProgress.Size = new System.Drawing.Size(204, 108);
+            this.lstDownloadProgress.TabIndex = 26;
+            // 
+            // lblIndividualDownloadProgress
+            // 
+            this.lblIndividualDownloadProgress.AutoSize = true;
+            this.lblIndividualDownloadProgress.Enabled = false;
+            this.lblIndividualDownloadProgress.Location = new System.Drawing.Point(244, 175);
+            this.lblIndividualDownloadProgress.Name = "lblIndividualDownloadProgress";
+            this.lblIndividualDownloadProgress.Size = new System.Drawing.Size(98, 13);
+            this.lblIndividualDownloadProgress.TabIndex = 27;
+            this.lblIndividualDownloadProgress.Text = "Download progress";
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(600, 442);
+            this.Controls.Add(this.lblIndividualDownloadProgress);
+            this.Controls.Add(this.lstDownloadProgress);
+            this.Controls.Add(this.lblUpdatesDownloaded);
             this.Controls.Add(this.lblCurrentVersion);
             this.Controls.Add(this.lstUpdates);
             this.Controls.Add(this.btnExit);
@@ -427,6 +461,9 @@
         private System.Windows.Forms.Label lblCurrentVersion;
         private System.Windows.Forms.ToolStripMenuItem downloadSequentiallyToolStripMenuItem;
         private System.Windows.Forms.FolderBrowserDialog foldBrowserDialogUpdate;
+        private System.Windows.Forms.Label lblUpdatesDownloaded;
+        private System.Windows.Forms.ListBox lstDownloadProgress;
+        private System.Windows.Forms.Label lblIndividualDownloadProgress;
     }
 }
 
