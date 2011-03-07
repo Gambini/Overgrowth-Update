@@ -34,7 +34,7 @@ namespace OvergrowthAutoUpdater
         ///<summary>The window that pops up when the user clicks btnUpdateDir</summary>
         public FolderBrowserDialog fldrUpdateDialog;
         ///<summary>The current version of the .exe file. Not persistent. Format a###,</summary>
-        public string currentVersion; // = "a118";
+        public string currentVersion;
         ///<summary>The latest version available to download.</summary>
         public int latestVersion;
         ////<summary>A variable used if the sequential download option is true</summary>
@@ -70,6 +70,7 @@ namespace OvergrowthAutoUpdater
                 currentVersion = GetCurrentVersion();
                 lblCurrentVersion.Text = "Current Overgrowth version: " + currentVersion;
                 txtExeDir.Text = attributes.exeDirectory + "Overgrowth.exe";
+                latestVersion = FindLatestVersion(int.Parse(currentVersion.Remove(0, 1)));
             }
             cboxHaveUpdate.Checked = attributes.hasUpdateFiles;
             createBackupToolStripMenuItem.Checked = attributes.createBackup;
@@ -81,6 +82,7 @@ namespace OvergrowthAutoUpdater
                 case "Download and Update": rbtnDownloadAndUpdate.Checked = true; break;
                 default: break;
             }
+            
             
 
         }
@@ -210,7 +212,13 @@ namespace OvergrowthAutoUpdater
         //I think I want this instead of "TextChanged"
         private void txtUpdateDir_Leave(object sender, EventArgs e)
         {
-            if (firstTime) return; //Don't do anything if it is the initial start up
+            if (firstTime)
+            {
+                //remove trailing slashes
+                if (txtUpdateDir.Text[txtUpdateDir.Text.Length - 1] == '\\')
+                    txtUpdateDir.Text.Remove(txtUpdateDir.Text.Length - 1);
+                return; //Don't do anything if it is the initial start up
+            }
 
             
             if (!Directory.Exists(txtUpdateDir.Text))
@@ -220,6 +228,9 @@ namespace OvergrowthAutoUpdater
 
                 if (result == DialogResult.Yes)
                 {
+                    //remove trailing slashes
+                    if (txtUpdateDir.Text[txtUpdateDir.Text.Length - 1] == '\\')
+                        txtUpdateDir.Text.Remove(txtUpdateDir.Text.Length - 1);
                     attributes.updateDirectory = txtUpdateDir.Text;
                     Directory.CreateDirectory(attributes.updateDirectory);
                 }
@@ -265,7 +276,7 @@ namespace OvergrowthAutoUpdater
             }
             else
                 //show error
-                txtExeDir.Text = "not an exe file";
+                txtExeDir.Text = "You did not choose Overgrowth.exe";
         }
 
 
@@ -310,6 +321,18 @@ namespace OvergrowthAutoUpdater
         ///<summary>This is the "Do everything with given info" button.</summary>
         private void btnDoUpdate_Click(object sender, EventArgs e)
         {
+            //Make sure we  have all the info we need
+            if (!File.Exists(attributes.exeDirectory + "Overgrowth.exe"))
+            {
+                btnExeBrowse_Click(this, e);
+                return;
+            }
+            if (!Directory.Exists(attributes.updateDirectory))
+            {
+                txtUpdateDir_Leave(this, e);
+                return;
+            }
+
             toggleDownloadOptions(false);
             cboxHaveUpdate.Enabled = false;
 
@@ -353,20 +376,27 @@ namespace OvergrowthAutoUpdater
             int current = int.Parse(currentVersion.Remove(0,1));
 
             updateZips = Directory.GetFiles(attributes.updateDirectory + "\\", "a*.zip");
-            if (updateZips.Length == 0) return; //don't put anything in the list box if no update files are there
+            if (updateZips.Length == 0)
+            {
+                MessageBox.Show("You have no updates in the update folder.");
+                return; //don't put anything in the list box if no update files are there
+            }
             for (int i = 0; i < updateZips.Length; i++)
             {
                 next = current += 1;
-                if (File.Exists(attributes.updateDirectory + "\\a" + next + ".zip"))
-                    if (next <= latestVersion)
+                if (next <= latestVersion)
+                    if (File.Exists(attributes.updateDirectory + "\\a" + next + ".zip"))
                         ReplaceFiles(attributes.updateDirectory + "\\a" + next + ".zip");
                     else
+                    {
+                        MessageBox.Show("Error in DoUpdateFiles function.\n" +
+                            "Could not find update file " + attributes.updateDirectory + "\\a" + next + ".zip\n" +
+                            "You will be at version a" + (next - 1) + " until the update file for a" + next + " is found.");
                         return;
+                    }
                 else
                 {
-                    MessageBox.Show("Error in DoUpdateFiles function.\n" +
-                        "Could not find update file " + attributes.updateDirectory + "a" + next + ".zip\n" +
-                        "You will be at version a" + (next - 1) + " until the update file for a" + next + " is found.");
+                    MessageBox.Show("You are at the latest version.");
                     return;
                 }
             }
@@ -641,11 +671,11 @@ namespace OvergrowthAutoUpdater
             
             if (lstUpdates.Items.Count == clients.Count) //if all of the files have finished downloading
             {
+                canApplyUpdate = true;
                 if (attributes.downloadOption == "Download")
                 {
                     toggleDownloadOptions(true);
                     cboxHaveUpdate.Enabled = true;
-                    canApplyUpdate = true;
                 }
                 if (attributes.downloadOption == "Download and Update")
                 {
@@ -722,6 +752,44 @@ namespace OvergrowthAutoUpdater
                 }
             }
             throw new KeyNotFoundException("The Web Client given wasn't in the clients list");
+        }
+
+        private void aboutToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            Form abt = new About();
+            abt.Show(this);            
+        }
+
+        private void createBackupToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            attributes.createBackup = createBackupToolStripMenuItem.Checked;
+        }
+
+
+        //Deletes the files, then the directories. You can not delete non-empty directories.
+        private void cleanUpdatesFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string[] files = Directory.GetFiles(attributes.updateDirectory, "*", SearchOption.AllDirectories);
+                string[] dirs = Directory.GetDirectories(attributes.updateDirectory);
+
+                foreach (string file in files)
+                {
+                    File.SetAttributes(file, FileAttributes.Normal);
+                    File.Delete(file);
+                }
+
+                foreach (string dir in dirs)
+                {
+                    Directory.Delete(dir, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error in the CleanUpdatesFolder function.\n" + ex.Message +
+                    "\n The function might have properly run. You can check your update folder to see if it did.");
+            }
         }
     } //end partial class
 } //end namespace

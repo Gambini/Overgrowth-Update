@@ -11,7 +11,7 @@ namespace OvergrowthAutoUpdater
     {
         public ConfigAtrributes()
         {
-            updateDirectory = Directory.GetCurrentDirectory() + "Updates\\";
+            updateDirectory = Directory.GetCurrentDirectory() + "\\Updates";
             exeDirectory = "";
             downloadOption = "Download and Update";
             hasUpdateFiles = false;

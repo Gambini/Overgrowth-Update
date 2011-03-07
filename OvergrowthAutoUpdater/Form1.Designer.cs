@@ -64,6 +64,7 @@
             this.lblUpdatesDownloaded = new System.Windows.Forms.Label();
             this.lstDownloadProgress = new System.Windows.Forms.ListBox();
             this.lblIndividualDownloadProgress = new System.Windows.Forms.Label();
+            this.cleanUpdatesFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sstripInfo.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.grpDownloadOptions.SuspendLayout();
@@ -201,6 +202,7 @@
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cleanUpdatesFolderToolStripMenuItem,
             this.toolStripSeparator1,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -237,6 +239,7 @@
             this.createBackupToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
             this.createBackupToolStripMenuItem.Text = "Create Backup";
             this.createBackupToolStripMenuItem.ToolTipText = "Creates a backup of every file that will be replaced in the update process.";
+            this.createBackupToolStripMenuItem.CheckedChanged += new System.EventHandler(this.createBackupToolStripMenuItem_CheckedChanged);
             // 
             // downloadSequentiallyToolStripMenuItem
             // 
@@ -259,8 +262,9 @@
             // aboutToolStripMenuItem1
             // 
             this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
-            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(107, 22);
+            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
             this.aboutToolStripMenuItem1.Text = "About";
+            this.aboutToolStripMenuItem1.Click += new System.EventHandler(this.aboutToolStripMenuItem1_Click);
             // 
             // rbtnDownload
             // 
@@ -344,6 +348,7 @@
             // opnFileDialogExe
             // 
             this.opnFileDialogExe.Filter = "Exe files|*.exe";
+            this.opnFileDialogExe.Title = "Choose Overgrowth.exe";
             this.opnFileDialogExe.FileOk += new System.ComponentModel.CancelEventHandler(this.opnFileDialogExe_FileOk);
             // 
             // lblCurrentVersion
@@ -386,6 +391,14 @@
             this.lblIndividualDownloadProgress.Size = new System.Drawing.Size(98, 13);
             this.lblIndividualDownloadProgress.TabIndex = 27;
             this.lblIndividualDownloadProgress.Text = "Download progress";
+            // 
+            // cleanUpdatesFolderToolStripMenuItem
+            // 
+            this.cleanUpdatesFolderToolStripMenuItem.Name = "cleanUpdatesFolderToolStripMenuItem";
+            this.cleanUpdatesFolderToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.cleanUpdatesFolderToolStripMenuItem.Text = "Clean Updates folder";
+            this.cleanUpdatesFolderToolStripMenuItem.ToolTipText = "Deletes all of the files from the update directory";
+            this.cleanUpdatesFolderToolStripMenuItem.Click += new System.EventHandler(this.cleanUpdatesFolderToolStripMenuItem_Click);
             // 
             // frmMain
             // 
@@ -468,6 +481,7 @@
         private System.Windows.Forms.ListBox lstDownloadProgress;
         private System.Windows.Forms.Label lblIndividualDownloadProgress;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem cleanUpdatesFolderToolStripMenuItem;
     }
 }
 
