@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.lblDirExe = new System.Windows.Forms.Label();
             this.txtExeDir = new System.Windows.Forms.TextBox();
             this.btnExeBrowse = new System.Windows.Forms.Button();
@@ -428,6 +429,7 @@
             this.Controls.Add(this.txtExeDir);
             this.Controls.Add(this.lblDirExe);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
             this.Name = "frmMain";
             this.Text = "Overgrowth Updater";

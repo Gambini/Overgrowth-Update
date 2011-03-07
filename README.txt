@@ -30,3 +30,6 @@ A few things to note:
 Built with the .Net framework 4, which you can get at 
    http://www.microsoft.com/downloads/en/details.aspx?FamilyID=0a391abd-25c1-4fc0-919f-b21f31ab88b7
 If there are some people that would like it in a lower (like 3), then say something
+
+
+Icon made by ZramuliZ from the Overgrowth forums.
