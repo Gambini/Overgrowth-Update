@@ -25,3 +25,8 @@ A few things to note:
    that the update procedure has worked. Make sure you do it after you verify it has worked, because it will
    also delete the backup files (if you have the backup option selected), which is your best way to revert to
    a previous version if the update procedure messes up. If you have plenty of hard drive space, then no worries.
+
+
+Built with the .Net framework 4, which you can get at 
+   http://www.microsoft.com/downloads/en/details.aspx?FamilyID=0a391abd-25c1-4fc0-919f-b21f31ab88b7
+If there are some people that would like it in a lower (like 3), then say something
