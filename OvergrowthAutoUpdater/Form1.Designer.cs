@@ -50,6 +50,7 @@
             this.createBackupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.downloadSequentiallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.rbtnDownload = new System.Windows.Forms.RadioButton();
             this.rbtnUpdate = new System.Windows.Forms.RadioButton();
             this.rbtnDownloadAndUpdate = new System.Windows.Forms.RadioButton();
@@ -63,7 +64,6 @@
             this.lblUpdatesDownloaded = new System.Windows.Forms.Label();
             this.lstDownloadProgress = new System.Windows.Forms.ListBox();
             this.lblIndividualDownloadProgress = new System.Windows.Forms.Label();
-            this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.sstripInfo.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.grpDownloadOptions.SuspendLayout();
@@ -120,12 +120,7 @@
             this.Tooltip.SetToolTip(this.txtUpdateDir, "This is the folder that has all of the .zip update files. Do not unzip them, othe" +
                     "rwise the update might not work. Do not have a any slash at the end, or it will " +
                     "not work.");
-            this.txtUpdateDir.TextChanged += new System.EventHandler(this.txtUpdateDir_TextChanged);
             this.txtUpdateDir.Leave += new System.EventHandler(this.txtUpdateDir_Leave);
-            // 
-            // Tooltip
-            // 
-            this.Tooltip.Popup += new System.Windows.Forms.PopupEventHandler(this.toolTip1_Popup);
             // 
             // cboxHaveUpdate
             // 
@@ -215,12 +210,12 @@
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(89, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(92, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -246,6 +241,7 @@
             // downloadSequentiallyToolStripMenuItem
             // 
             this.downloadSequentiallyToolStripMenuItem.CheckOnClick = true;
+            this.downloadSequentiallyToolStripMenuItem.Enabled = false;
             this.downloadSequentiallyToolStripMenuItem.Name = "downloadSequentiallyToolStripMenuItem";
             this.downloadSequentiallyToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
             this.downloadSequentiallyToolStripMenuItem.Text = "Download sequentially";
@@ -259,6 +255,12 @@
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.aboutToolStripMenuItem.Text = "About";
+            // 
+            // aboutToolStripMenuItem1
+            // 
+            this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
+            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(107, 22);
+            this.aboutToolStripMenuItem1.Text = "About";
             // 
             // rbtnDownload
             // 
@@ -384,12 +386,6 @@
             this.lblIndividualDownloadProgress.Size = new System.Drawing.Size(98, 13);
             this.lblIndividualDownloadProgress.TabIndex = 27;
             this.lblIndividualDownloadProgress.Text = "Download progress";
-            // 
-            // aboutToolStripMenuItem1
-            // 
-            this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
-            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
-            this.aboutToolStripMenuItem1.Text = "About";
             // 
             // frmMain
             // 

@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigAtrributes.cs" />
+    <Compile Include="Download.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

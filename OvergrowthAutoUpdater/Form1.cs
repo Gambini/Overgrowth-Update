@@ -11,28 +11,10 @@ using System.IO;
 using System.Net;
 using Ionic.Zip;
 
-///<summary>   </summary>
+
 namespace OvergrowthAutoUpdater
 {
-    struct Download
-    {
-        public long totalSize;
-        public long completed;
-        public WebClient wclient;
-        public bool accountedFor;
-        public int alpha;
 
-        public Download(WebClient wc, int a)
-        { wclient = wc; totalSize = 0; completed = 0; accountedFor = false; alpha = a; }
-
-        public override string ToString()
-        {
-            int percent;
-            if (totalSize == 0) percent = 0;
-            else percent = (int)(((double)completed / (double)totalSize) * 100);
-            return "a" + alpha + ".zip.... " + percent + "%";
-        }
-    }
 
     public partial class frmMain : Form
     {
@@ -57,10 +39,11 @@ namespace OvergrowthAutoUpdater
         public int latestVersion;
         ////<summary>A variable used if the sequential download option is true</summary>
         //private bool canDownloadNextFile = true;
-        /// <summary>Key is the version of the alpha minus 'a', value is of "Download" type</summary> 
-        //public SortedList clients;
+        /// <summary>value is of "Download" type</summary> 
         public ArrayList clients;
+        /// <summary> The total amount of bytes we expect to download from every file </summary>
         public long totalUpdateSize;
+        /// <summary>The amount of bytes we have recieved from the downloaded(ing) files </summary>
         public long totalUpdateRecieved;
         /// <summary>true if the program is allowed to apply the update</summary>
         public bool canApplyUpdate = false;
@@ -71,15 +54,8 @@ namespace OvergrowthAutoUpdater
             InitializeComponent();
             
             firstTime = false;
-            //updateSize = new SortedList();
             totalUpdateSize = 0;
             totalUpdateRecieved = 0;
-        }
-
-
-        private void toolTip1_Popup(object sender, PopupEventArgs e)
-        {
-            //I'll delete this later
         }
 
         
@@ -98,6 +74,13 @@ namespace OvergrowthAutoUpdater
             cboxHaveUpdate.Checked = attributes.hasUpdateFiles;
             createBackupToolStripMenuItem.Checked = attributes.createBackup;
             downloadSequentiallyToolStripMenuItem.Checked = attributes.sequentialDownload;
+            switch (attributes.downloadOption)
+            {
+                case "Download": rbtnDownload.Checked = true; break;
+                case "Update": rbtnUpdate.Checked = true; break;
+                case "Download and Update": rbtnDownloadAndUpdate.Checked = true; break;
+                default: break;
+            }
             
 
         }
@@ -152,8 +135,7 @@ namespace OvergrowthAutoUpdater
                 
             }
             catch (Exception ex)
-            { 
-                //TODO: Catch some shit.
+            {
                 MessageBox.Show("Something happened in the ReadConfigFile function" + ex.Message);
             }
         }//end ReadConfigFile
@@ -200,7 +182,6 @@ namespace OvergrowthAutoUpdater
             }
             catch (Exception ex)
             {
-                //TODO: Catch lots of shit
                 MessageBox.Show("Something happened in the updateListBox function\n" + ex.Message);
             }
             
@@ -223,12 +204,6 @@ namespace OvergrowthAutoUpdater
         {
             attributes.downloadOption = "Download and Update";
             btnDoUpdate.Text = attributes.downloadOption;
-        }
-
-
-        private void txtUpdateDir_TextChanged(object sender, EventArgs e)
-        {
-            //Delete this later
         }
 
 
@@ -294,6 +269,8 @@ namespace OvergrowthAutoUpdater
         }
 
 
+        /// <summary>When the user clicks the button, it opens a FolderBrowser dialog.
+        /// When the user clicks "Ok", it makes sure that the folder exists and uses that folder as the update directory </summary>
         private void btnUpdateDir_Click(object sender, EventArgs e)
         {
             fldrUpdateDialog = new FolderBrowserDialog();
@@ -304,14 +281,12 @@ namespace OvergrowthAutoUpdater
                 if (!Directory.Exists(fldrUpdateDialog.SelectedPath))
                 {
                     //show message that the folder isn't good
-                                        return;
+                    return;
                 }
 
                 txtUpdateDir.Text = fldrUpdateDialog.SelectedPath;
                 attributes.updateDirectory = fldrUpdateDialog.SelectedPath;
-                //Do I want to do this?
-                //txtUpdateDir_Leave(sender, e); //I hope it works passing the same parameters as this function recieved.
-                
+
                 //make sure the list box updates when the folder is changed
                 if (cboxHaveUpdate.Checked)
                     UpdateListBox();
@@ -342,22 +317,28 @@ namespace OvergrowthAutoUpdater
 
             if (rbtnDownload.Checked || rbtnDownloadAndUpdate.Checked)
                 DownloadUpdateFiles();
-            if (rbtnUpdate.Checked || rbtnDownloadAndUpdate.Checked)
+            if (rbtnUpdate.Checked)
+            {
                 DoUpdateFiles();
+                lblCurrentVersion.Text = "Current version: " + GetCurrentVersion();
+                sstriplblStatus.Text = "Done";
+                toggleDownloadOptions(true);
+                cboxHaveUpdate.Enabled = true;
+            }
 
-
-            lblCurrentVersion.Text = "Current version: " + GetCurrentVersion();
-            toggleDownloadOptions(true);
-            cboxHaveUpdate.Enabled = true;
 
         }
 
+
+        /// <summary>Changes the options for all of the radio buttons in the group box for download options. Also the btnDoUpdate.</summary>
+        /// <param name="enabled">What to set the radiobuttons.Enabled to</param>
         private void toggleDownloadOptions(bool enabled)
         {
             //so the user doesn't change the options in the middle of the process
             rbtnDownload.Enabled = enabled;
             rbtnDownloadAndUpdate.Enabled = enabled;
             rbtnUpdate.Enabled = enabled;
+            btnDoUpdate.Enabled = enabled;
         }
 
 
@@ -365,6 +346,8 @@ namespace OvergrowthAutoUpdater
         {
             if (!canApplyUpdate)
                 return;
+
+            sstriplblStatus.Text = "Applying Updates";
             int next = 0; //the alpha version we are looking to update to
             currentVersion = GetCurrentVersion(); //so we have the most up to date version
             int current = int.Parse(currentVersion.Remove(0,1));
@@ -390,7 +373,7 @@ namespace OvergrowthAutoUpdater
         }
 
 
-        /// <summary>Does the actual file operations to apply the update</summary>
+        /// <summary>Does the actual file operations to apply the update. It is a mess.</summary>
         /// <param name="path">The path of the .zip file, including the .zip</param>
         private void ReplaceFiles(string path)
         {
@@ -422,8 +405,8 @@ namespace OvergrowthAutoUpdater
                 {
                     for (int c = 0; c < currentDirectories.Length; c++)
                     {
-                        string b = updateDirectories[u].Remove(0, path.Length);
-                        string d = currentDirectories[c].Remove(0, attributes.exeDirectory.Length);
+                        //string b = updateDirectories[u].Remove(0, path.Length); //for debug
+                        //string d = currentDirectories[c].Remove(0, attributes.exeDirectory.Length);
                         if (updateDirectories[u].Remove(0, path.Length) == currentDirectories[c].Remove(0, attributes.exeDirectory.Length))
                             commonDirectories.Add(updateDirectories[u].Remove(0, path.Length));//does not end with \\
                     }
@@ -447,8 +430,8 @@ namespace OvergrowthAutoUpdater
                     {
                         for (int c = 0; c < currentFiles.Length; c++)
                         {
-                            string a = updateFiles[u].Remove(0, path.Length + dir.Length);
-                            string b = currentFiles[c].Remove(0, attributes.exeDirectory.Length + dir.Length);
+                            //string a = updateFiles[u].Remove(0, path.Length + dir.Length); //for debug
+                            //string b = currentFiles[c].Remove(0, attributes.exeDirectory.Length + dir.Length);
                             //if the files are the same
                             if (updateFiles[u].Remove(0, path.Length + dir.Length) == currentFiles[c].Remove(0, attributes.exeDirectory.Length + dir.Length))
                             {
@@ -511,8 +494,8 @@ namespace OvergrowthAutoUpdater
                 {
                     for (int c = 0; c < currentFiles.Length; c++)
                     {
-                        string a = updateFiles[u].Remove(0, path.Length);
-                        string b = currentFiles[c].Remove(0, attributes.exeDirectory.Length);
+                        //string a = updateFiles[u].Remove(0, path.Length); //for debug
+                        //string b = currentFiles[c].Remove(0, attributes.exeDirectory.Length);
                         //if the files are the same
                         if (updateFiles[u].Remove(0, path.Length) == currentFiles[c].Remove(0, attributes.exeDirectory.Length))
                         {
@@ -546,11 +529,8 @@ namespace OvergrowthAutoUpdater
         private void DownloadUpdateFiles()
         {
             //get a just the number of the current version
-            //temporary for now. Make this not have to be done in two places
             currentVersion = GetCurrentVersion();
-            string tempCurrent = currentVersion;
-            tempCurrent = tempCurrent.Remove(0, 1); //shoud just remove the'a'
-            int current = int.Parse(tempCurrent); //TryParse maybe?
+            int current = int.Parse(currentVersion.Remove(0,1)); //TryParse maybe?
             if (current == latestVersion)
             {
                 MessageBox.Show("You are already at the newest version.");
@@ -602,7 +582,7 @@ namespace OvergrowthAutoUpdater
                 HttpWebResponse res = (HttpWebResponse)req.GetResponse();
                 while (res.StatusCode == HttpStatusCode.OK)
                 {
-                    req.Abort();
+                    req.Abort(); //so we start with new streams
                     res.Close();
                     req = (HttpWebRequest)WebRequest.Create(updateURL + "a" + (++latest) + ".zip");
                     sstripInfo.Text = "Requesting status of " + updateURL + "a" + latest + ".zip";
@@ -620,9 +600,9 @@ namespace OvergrowthAutoUpdater
         }
 
 
+        /// <summary>Updates the download visuals (progress bar, text %, etc.)</summary>
         private void DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-
             int index = GetDownloadFromWebClient((WebClient)sender);
             Download dld = (Download)clients[index]; //is this creating a copy?
             if (!dld.accountedFor)
@@ -632,7 +612,7 @@ namespace OvergrowthAutoUpdater
                 dld.accountedFor = true;
             }
             dld.completed = e.BytesReceived;
-            clients[index] = dld; // if it is making a copy, then put the copy into the array
+            clients[index] = dld; // put the copy into the array
 
             long tempTotal = 0;
             lstDownloadProgress.Items.Clear();
@@ -661,16 +641,26 @@ namespace OvergrowthAutoUpdater
             
             if (lstUpdates.Items.Count == clients.Count) //if all of the files have finished downloading
             {
-                toggleDownloadOptions(true);
-                cboxHaveUpdate.Enabled = true;
-                canApplyUpdate = true;
-                if( attributes.downloadOption == "Download and Update" )
+                if (attributes.downloadOption == "Download")
+                {
+                    toggleDownloadOptions(true);
+                    cboxHaveUpdate.Enabled = true;
+                    canApplyUpdate = true;
+                }
+                if (attributes.downloadOption == "Download and Update")
+                {
                     DoUpdateFiles();
+                    lblCurrentVersion.Text = "Current version: " + GetCurrentVersion();
+                    sstriplblStatus.Text = "Done";
+                    toggleDownloadOptions(true);
+                    cboxHaveUpdate.Enabled = true;
+                }
             }
 
         }
 
-
+        /// <summary> Reads the version.xml file to determine the alpha version</summary>
+        /// <returns>A string value in the format of a###</returns>
         private string GetCurrentVersion()
         {
             string line;
@@ -714,7 +704,7 @@ namespace OvergrowthAutoUpdater
         } //end GetCurrentVersion
 
 
-        ///<summary>Returns an index obtained from the clients list</summary>
+        ///<summary>Returns an index obtained from the clients list by comparing base addresses</summary>
         private int GetDownloadFromWebClient(WebClient wclient)
         {
             if (clients.Count == 0)
