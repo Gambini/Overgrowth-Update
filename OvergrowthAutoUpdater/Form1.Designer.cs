@@ -45,6 +45,7 @@
             this.dnu_lblDownloadProgress = new System.Windows.Forms.Label();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cleanUpdatesFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -65,7 +66,7 @@
             this.lblUpdatesDownloaded = new System.Windows.Forms.Label();
             this.lstDownloadProgress = new System.Windows.Forms.ListBox();
             this.lblIndividualDownloadProgress = new System.Windows.Forms.Label();
-            this.cleanUpdatesFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.bwUpdateFiles = new System.ComponentModel.BackgroundWorker();
             this.sstripInfo.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.grpDownloadOptions.SuspendLayout();
@@ -210,15 +211,23 @@
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
             // 
+            // cleanUpdatesFolderToolStripMenuItem
+            // 
+            this.cleanUpdatesFolderToolStripMenuItem.Name = "cleanUpdatesFolderToolStripMenuItem";
+            this.cleanUpdatesFolderToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.cleanUpdatesFolderToolStripMenuItem.Text = "Clean Updates folder";
+            this.cleanUpdatesFolderToolStripMenuItem.ToolTipText = "Deletes all of the files from the update directory";
+            this.cleanUpdatesFolderToolStripMenuItem.Click += new System.EventHandler(this.cleanUpdatesFolderToolStripMenuItem_Click);
+            // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(89, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(181, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(92, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -263,7 +272,7 @@
             // aboutToolStripMenuItem1
             // 
             this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
-            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(107, 22);
             this.aboutToolStripMenuItem1.Text = "About";
             this.aboutToolStripMenuItem1.Click += new System.EventHandler(this.aboutToolStripMenuItem1_Click);
             // 
@@ -393,13 +402,12 @@
             this.lblIndividualDownloadProgress.TabIndex = 27;
             this.lblIndividualDownloadProgress.Text = "Download progress";
             // 
-            // cleanUpdatesFolderToolStripMenuItem
+            // bwUpdateFiles
             // 
-            this.cleanUpdatesFolderToolStripMenuItem.Name = "cleanUpdatesFolderToolStripMenuItem";
-            this.cleanUpdatesFolderToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
-            this.cleanUpdatesFolderToolStripMenuItem.Text = "Clean Updates folder";
-            this.cleanUpdatesFolderToolStripMenuItem.ToolTipText = "Deletes all of the files from the update directory";
-            this.cleanUpdatesFolderToolStripMenuItem.Click += new System.EventHandler(this.cleanUpdatesFolderToolStripMenuItem_Click);
+            this.bwUpdateFiles.WorkerReportsProgress = true;
+            this.bwUpdateFiles.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bwUpdateFiles_DoWork);
+            this.bwUpdateFiles.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bwUpdateFiles_ProgressChanged);
+            this.bwUpdateFiles.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bwUpdateFiles_RunWorkerCompleted);
             // 
             // frmMain
             // 
@@ -432,6 +440,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
             this.Name = "frmMain";
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "Overgrowth Updater";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -484,6 +493,7 @@
         private System.Windows.Forms.Label lblIndividualDownloadProgress;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem cleanUpdatesFolderToolStripMenuItem;
+        private System.ComponentModel.BackgroundWorker bwUpdateFiles;
     }
 }
 

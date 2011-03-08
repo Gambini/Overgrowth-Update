@@ -14,7 +14,15 @@ using Ionic.Zip;
 
 namespace OvergrowthAutoUpdater
 {
-
+    /// <summary>So I can pass more than one number to the BackgroundWorker</summary>
+    public struct UpdateData
+    {
+        /// <summary>The alpha to be updated to</summary>
+        public int next;
+        /// <summary>How many times we are going to update. Obtained from updateZips.Length</summary>
+        public int iterations;
+        public UpdateData(int Next, int Iterations) { next = Next; iterations = Iterations; }
+    }
 
     public partial class frmMain : Form
     {
@@ -47,7 +55,8 @@ namespace OvergrowthAutoUpdater
         public long totalUpdateRecieved;
         /// <summary>true if the program is allowed to apply the update</summary>
         public bool canApplyUpdate = false;
-
+        /// <summary>I need this in the global scope, it contains what update to apply next</summary>
+        public UpdateData udata; 
 
         public frmMain()
         {
@@ -343,10 +352,6 @@ namespace OvergrowthAutoUpdater
             if (rbtnUpdate.Checked)
             {
                 DoUpdateFiles();
-                lblCurrentVersion.Text = "Current version: " + GetCurrentVersion();
-                sstriplblStatus.Text = "Done";
-                toggleDownloadOptions(true);
-                cboxHaveUpdate.Enabled = true;
             }
 
 
@@ -381,24 +386,27 @@ namespace OvergrowthAutoUpdater
                 MessageBox.Show("You have no updates in the update folder.");
                 return; //don't put anything in the list box if no update files are there
             }
-            for (int i = 0; i < updateZips.Length; i++)
-            {
-                next = current += 1;
-                if (next <= latestVersion)
-                    if (File.Exists(attributes.updateDirectory + "\\a" + next + ".zip"))
-                        ReplaceFiles(attributes.updateDirectory + "\\a" + next + ".zip");
-                    else
-                    {
-                        MessageBox.Show("Error in DoUpdateFiles function.\n" +
-                            "Could not find update file " + attributes.updateDirectory + "\\a" + next + ".zip\n" +
-                            "You will be at version a" + (next - 1) + " until the update file for a" + next + " is found.");
-                        return;
-                    }
+
+            next = current += 1;
+            if (next <= latestVersion)
+                if (File.Exists(attributes.updateDirectory + "\\a" + next + ".zip"))
+                {
+                    udata = new UpdateData(next, updateZips.Length);
+                    bwUpdateFiles.RunWorkerAsync();
+                    //ReplaceFiles(attributes.updateDirectory + "\\a" + next + ".zip");
+                }
+                
                 else
                 {
-                    MessageBox.Show("You are at the latest version.");
+                    MessageBox.Show("Error in DoUpdateFiles function.\n" +
+                        "Could not find update file " + attributes.updateDirectory + "\\a" + next + ".zip\n" +
+                        "You will be at version a" + (next - 1) + " until the update file for a" + next + " is found.");
                     return;
                 }
+            else
+            {
+                MessageBox.Show("You are at the latest version.");
+                return;
             }
         }
 
@@ -417,6 +425,7 @@ namespace OvergrowthAutoUpdater
 
             using (ZipFile zip = ZipFile.Read(path))
             {
+                bwUpdateFiles.ReportProgress(1);
                 zip.ExtractAll(path.Remove(path.IndexOf(".zip")));
                 zip.Dispose();
             }
@@ -430,6 +439,7 @@ namespace OvergrowthAutoUpdater
                 currentDirectories = Directory.GetDirectories(attributes.exeDirectory, "*", SearchOption.AllDirectories);
 
                 if (updateDirectories.Length == 0 || currentDirectories.Length == 0) return;
+                bwUpdateFiles.ReportProgress(2);
                 //go through each of the directories and compare them. Mightily ineffiecient, but effective
                 for (int u = 0; u < updateDirectories.Length; u++)
                 {
@@ -439,6 +449,14 @@ namespace OvergrowthAutoUpdater
                         //string d = currentDirectories[c].Remove(0, attributes.exeDirectory.Length);
                         if (updateDirectories[u].Remove(0, path.Length) == currentDirectories[c].Remove(0, attributes.exeDirectory.Length))
                             commonDirectories.Add(updateDirectories[u].Remove(0, path.Length));//does not end with \\
+                        else
+                        {
+                            if (!Directory.Exists(attributes.exeDirectory + updateDirectories[u].Remove(0, path.Length)))
+                            {
+                                Directory.CreateDirectory(attributes.exeDirectory + updateDirectories[u].Remove(0, path.Length));
+                                commonDirectories.Add(updateDirectories[u].Remove(0, path.Length));
+                            }
+                        }
                     }
                 }
 
@@ -446,6 +464,7 @@ namespace OvergrowthAutoUpdater
                     backup = new ZipFile(path + "backupfiles.zip");
                 else backup = new ZipFile();//not going to use it
 
+                bwUpdateFiles.ReportProgress(3);
                 foreach (string dir in commonDirectories)
                 {
                     if (attributes.createBackup)
@@ -484,6 +503,7 @@ namespace OvergrowthAutoUpdater
                     } //end outer 'for'
                 }//end foreach
 
+                bwUpdateFiles.ReportProgress(4);
                 //copying over the windows only stuff
                 //because we can only do one pattern at a time, going to have some copypasta code
                 path = path + "Windows\\";
@@ -547,7 +567,10 @@ namespace OvergrowthAutoUpdater
                 } //end outer 'for'
 
                 if (attributes.createBackup)
+                {
+                    bwUpdateFiles.ReportProgress(5);
                     backup.Save();
+                }
             }
             catch (Exception ex)
             {
@@ -680,10 +703,6 @@ namespace OvergrowthAutoUpdater
                 if (attributes.downloadOption == "Download and Update")
                 {
                     DoUpdateFiles();
-                    lblCurrentVersion.Text = "Current version: " + GetCurrentVersion();
-                    sstriplblStatus.Text = "Done";
-                    toggleDownloadOptions(true);
-                    cboxHaveUpdate.Enabled = true;
                 }
             }
 
@@ -790,6 +809,58 @@ namespace OvergrowthAutoUpdater
                 MessageBox.Show("Error in the CleanUpdatesFolder function.\n" + ex.Message +
                     "\n The function might have properly run. You can check your update folder to see if it did.");
             }
+        }
+
+
+        /// <summary>So the UI thread isn't busied up for the duration of the file portion of the update</summary>
+        private void bwUpdateFiles_DoWork(object sender, DoWorkEventArgs e)
+        {
+
+            ReplaceFiles(attributes.updateDirectory + "\\a" + udata.next + ".zip");
+        }
+
+        private void bwUpdateFiles_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            switch (e.ProgressPercentage)
+            {
+                case 1:
+                    sstriplblStatus.Text = "Unpackaging the .zip update file.";
+                    break;
+                case 2:
+                    sstriplblStatus.Text = "Finding common directories.";
+                    break;
+                case 3:
+                    sstriplblStatus.Text = "Replacing files.";
+                    break;
+                case 4:
+                    sstriplblStatus.Text = "Replacing Windows only files";
+                    break;
+                case 5:
+                    sstriplblStatus.Text = "Compressing the backup files.";
+                    break;
+                default:
+                    sstriplblStatus.Text = "Idle";
+                    break;
+            }
+
+        }
+
+        private void bwUpdateFiles_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            udata.next += 1;
+            udata.iterations -= 1;
+
+            //failure conditions. If we have updated once for every zip in the array, or the next zip puts us above the latest
+            if (udata.iterations < 1 || udata.next > latestVersion)
+            {
+                lblCurrentVersion.Text = "Current version: " + GetCurrentVersion();
+                sstriplblStatus.Text = "Done";
+                toggleDownloadOptions(true);
+                cboxHaveUpdate.Enabled = true;
+                return; // is this correct?
+            }
+
+            bwUpdateFiles.RunWorkerAsync(); //I hope this doesn't go all recursive-crazy on me
         }
     } //end partial class
 } //end namespace
