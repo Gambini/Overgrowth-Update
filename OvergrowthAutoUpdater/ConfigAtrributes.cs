@@ -12,7 +12,11 @@ namespace OvergrowthAutoUpdater
         public ConfigAtrributes()
         {
             updateDirectory = Directory.GetCurrentDirectory() + "\\Updates";
-            exeDirectory = "";
+            //If the user installed it to the default place, then set the exeDirectory for them.
+            //It would be nice if there were some sort of registry that would say where it was installed
+            if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + "\\Wolfire\\Overgrowth\\Overgrowth.exe"))
+                exeDirectory = Environment.SpecialFolder.ProgramFilesX86 + "\\Wolfire\\Overgrowth\\";
+            else exeDirectory = ""; //this will make the user choose their own directory
             downloadOption = "Download and Update";
             hasUpdateFiles = false;
             createBackup = true;
