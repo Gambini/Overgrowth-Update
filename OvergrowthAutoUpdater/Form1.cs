@@ -493,7 +493,7 @@ namespace OvergrowthAutoUpdater
                             else //it is a new file
                             {  
                                 //we need this check because it will keep on iterating through the non-common files
-                                if(!File.Exists(updateFiles[u]))
+                                if (!File.Exists(attributes.exeDirectory + dir + "\\" + updateFiles[u].Remove(0, path.Length + dir.Length)))
                                 {
                                     //                                                              The name of the file
                                     File.Copy(updateFiles[u], attributes.exeDirectory + dir + "\\" + updateFiles[u].Remove(0, path.Length + dir.Length));
@@ -527,7 +527,7 @@ namespace OvergrowthAutoUpdater
                         }
                         else //it is a new file
                         {
-                            if (!File.Exists(updateFiles[u]))
+                            if (!File.Exists(attributes.exeDirectory + updateFiles[u].Remove(0, path.Length)))
                             {
                                 //                                                              The name of the file
                                 File.Copy(updateFiles[u], attributes.exeDirectory + updateFiles[u].Remove(0, path.Length));
@@ -557,7 +557,7 @@ namespace OvergrowthAutoUpdater
                         }
                         else //it is a new file
                         {
-                            if (!File.Exists(updateFiles[u]))
+                            if (!File.Exists(attributes.exeDirectory + updateFiles[u].Remove(0, path.Length)))
                             {
                                 //                                                              The name of the file
                                 File.Copy(updateFiles[u], attributes.exeDirectory + updateFiles[u].Remove(0, path.Length));
