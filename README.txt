@@ -1,4 +1,4 @@
-This is the Overgrowth Updater v1.2. It will update your Overgrowth game to the latest version, regardless of 
+This is the Overgrowth Updater v1.3. It will update your Overgrowth game to the latest version, regardless of 
 what version you are currently on.
 
 Quick how to use:
@@ -31,6 +31,13 @@ Icon made by ZramuliZ from the Overgrowth forums.
 
 
 Changelog:
+v1.3:=========================================
+-Again, fixed logic for adding files from the update that didn't previously exist. I am 99% that all of the
+   code for applying the file changes to the Overgrowth game are now correct. I would like it if someone would
+   confirm, but I followed exactly what was going on, and it was working properly.
+-Added code to automatically add the Overgrowth.exe path upon starting up for the first time if the user has
+    installed Overgrowth to the default directory (Program Files x86).
+    TODO: Support for drag and drop the Overgrowth.exe into the form and it will automatigically fill in what you need.
 v1.2:=========================================
 -Fixed logic error where I didn't take in to account of the fact that there could be new directories in the update.
 -Added a background worker for the updating process. No more UI freezes!
