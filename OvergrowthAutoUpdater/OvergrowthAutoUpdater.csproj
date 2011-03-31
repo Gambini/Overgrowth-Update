@@ -63,6 +63,12 @@
     </Compile>
     <Compile Include="ConfigAtrributes.cs" />
     <Compile Include="Download.cs" />
+    <Compile Include="DownloadingFunctions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FileFunctions.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
