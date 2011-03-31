@@ -21,6 +21,7 @@ namespace OvergrowthAutoUpdater
             hasUpdateFiles = false;
             createBackup = true;
             sequentialDownload = false;
+            logging = false;
         }
 
         /// <summary> The directory that holds Overgrowth.exe. Not the .exe itself. </summary>
@@ -35,6 +36,8 @@ namespace OvergrowthAutoUpdater
         public bool createBackup;
         ///<summary>If the user wants us to download everything one at a time and in a row. In the options dropdown menu.</summary>
         public bool sequentialDownload;
+        ///<summary>If the user wants to write to a log file. It will contain file names of every file modified/deleted.</summary>
+        public bool logging;
 
 
         ///<summary>Writes the member data of the object to the config file. Uses same name as the member data as an identifier.</summary>
@@ -56,6 +59,7 @@ namespace OvergrowthAutoUpdater
                 swrite.WriteLine("hasUpdateFiles=" + hasUpdateFiles.ToString());
                 swrite.WriteLine("createBackup=" + createBackup.ToString());
                 swrite.WriteLine("sequentialDownload=" + sequentialDownload.ToString());
+                swrite.WriteLine("logging=" + logging.ToString());
                 swrite.Close();
                 return true;
             }

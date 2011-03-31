@@ -137,6 +137,9 @@ namespace OvergrowthAutoUpdater
                         case "sequentialDownload":
                             attributes.sequentialDownload = bool.Parse(data[1]);
                             break;
+                        case "logging":
+                            attributes.logging = bool.Parse(data[1]);
+                            break;
                         default:
                             break;
                     } //end switch
@@ -434,6 +437,11 @@ namespace OvergrowthAutoUpdater
 
             try
             {
+                //will create a log file regardless of if the user selected logging
+                StreamWriter sw = new StreamWriter("log.txt", true);
+                if (attributes.logging)  //will only ever write to the log if the user selected logging
+                    sw.WriteLine("\n\nLog " + DateTime.Now.ToLongDateString() + " from " + GetCurrentVersion() + " to the next.");
+
                 //get all of the directories from each one.
                 updateDirectories = Directory.GetDirectories(path, "*", SearchOption.AllDirectories);
                 currentDirectories = Directory.GetDirectories(attributes.exeDirectory, "*", SearchOption.AllDirectories);
@@ -448,13 +456,17 @@ namespace OvergrowthAutoUpdater
                         //string b = updateDirectories[u].Remove(0, path.Length); //for debug
                         //string d = currentDirectories[c].Remove(0, attributes.exeDirectory.Length);
                         if (updateDirectories[u].Remove(0, path.Length) == currentDirectories[c].Remove(0, attributes.exeDirectory.Length))
+                        {
                             commonDirectories.Add(updateDirectories[u].Remove(0, path.Length));//does not end with \\
+                            writeLog("Updated Directory " + updateDirectories[u].Remove(0, path.Length), sw);
+                        }                            
                         else
                         {
                             if (!Directory.Exists(attributes.exeDirectory + updateDirectories[u].Remove(0, path.Length)))
                             {
                                 Directory.CreateDirectory(attributes.exeDirectory + updateDirectories[u].Remove(0, path.Length));
                                 commonDirectories.Add(updateDirectories[u].Remove(0, path.Length));
+                                writeLog("New Directory " + updateDirectories[u].Remove(0, path.Length), sw);
                             }
                         }
                     }
@@ -489,6 +501,7 @@ namespace OvergrowthAutoUpdater
 
                                 File.Delete(currentFiles[c]); //delete the file, so we don't get errors from the next line
                                 File.Copy(updateFiles[u], currentFiles[c]);
+                                writeLog("Copy file " + updateFiles[u] + " to " + currentFiles[c], sw);
                             }
                             else //it is a new file
                             {  
@@ -497,6 +510,7 @@ namespace OvergrowthAutoUpdater
                                 {
                                     //                                                              The name of the file
                                     File.Copy(updateFiles[u], attributes.exeDirectory + dir + "\\" + updateFiles[u].Remove(0, path.Length + dir.Length));
+                                    writeLog("New file " + updateFiles[u] + " to " + attributes.exeDirectory + dir + "\\" + updateFiles[u].Remove(0, path.Length + dir.Length), sw);
                                 }
                             }
                         }
@@ -514,8 +528,8 @@ namespace OvergrowthAutoUpdater
                 {
                     for (int c = 0; c < currentFiles.Length; c++)
                     {
-                        string a = updateFiles[u].Remove(0, path.Length);
-                        string b = currentFiles[c].Remove(0, attributes.exeDirectory.Length);
+                        //string a = updateFiles[u].Remove(0, path.Length);
+                        //string b = currentFiles[c].Remove(0, attributes.exeDirectory.Length);
                         //if the files are the same
                         if (updateFiles[u].Remove(0, path.Length) == currentFiles[c].Remove(0, attributes.exeDirectory.Length))
                         {
@@ -524,6 +538,7 @@ namespace OvergrowthAutoUpdater
 
                             File.Delete(currentFiles[c]); //delete the file, so we don't get errors from the next line
                             File.Copy(updateFiles[u], currentFiles[c]);
+                            writeLog("Copy file " + updateFiles[u] + " to " + currentFiles[c], sw);
                         }
                         else //it is a new file
                         {
@@ -531,6 +546,7 @@ namespace OvergrowthAutoUpdater
                             {
                                 //                                                              The name of the file
                                 File.Copy(updateFiles[u], attributes.exeDirectory + updateFiles[u].Remove(0, path.Length));
+                                writeLog("New file " + updateFiles[u] + " to " + attributes.exeDirectory + updateFiles[u].Remove(0, path.Length), sw);
                             }
                         }
                     }
@@ -554,6 +570,7 @@ namespace OvergrowthAutoUpdater
 
                             File.Delete(currentFiles[c]); //delete the file, so we don't get errors from the next line
                             File.Copy(updateFiles[u], currentFiles[c]);
+                            writeLog("Copy file " + updateFiles[u] + " to " + currentFiles[c], sw);
                         }
                         else //it is a new file
                         {
@@ -561,6 +578,7 @@ namespace OvergrowthAutoUpdater
                             {
                                 //                                                              The name of the file
                                 File.Copy(updateFiles[u], attributes.exeDirectory + updateFiles[u].Remove(0, path.Length));
+                                writeLog("New file " + updateFiles[u] + " to " + attributes.exeDirectory + updateFiles[u].Remove(0, path.Length), sw);
                             }
                         }
                     }
@@ -571,6 +589,8 @@ namespace OvergrowthAutoUpdater
                     bwUpdateFiles.ReportProgress(5);
                     backup.Save();
                 }
+
+                sw.Close();
             }
             catch (Exception ex)
             {
@@ -708,6 +728,7 @@ namespace OvergrowthAutoUpdater
 
         }
 
+
         /// <summary> Reads the version.xml file to determine the alpha version</summary>
         /// <returns>A string value in the format of a###</returns>
         private string GetCurrentVersion()
@@ -773,6 +794,7 @@ namespace OvergrowthAutoUpdater
             throw new KeyNotFoundException("The Web Client given wasn't in the clients list");
         }
 
+
         private void aboutToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             Form abt = new About();
@@ -782,6 +804,11 @@ namespace OvergrowthAutoUpdater
         private void createBackupToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
             attributes.createBackup = createBackupToolStripMenuItem.Checked;
+        }
+
+        private void loggingToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            attributes.logging = loggingToolStripMenuItem.Checked;
         }
 
 
@@ -815,7 +842,6 @@ namespace OvergrowthAutoUpdater
         /// <summary>So the UI thread isn't busied up for the duration of the file portion of the update</summary>
         private void bwUpdateFiles_DoWork(object sender, DoWorkEventArgs e)
         {
-
             ReplaceFiles(attributes.updateDirectory + "\\a" + udata.next + ".zip");
         }
 
@@ -862,5 +888,16 @@ namespace OvergrowthAutoUpdater
 
             bwUpdateFiles.RunWorkerAsync(); //I hope this doesn't go all recursive-crazy on me
         }
+
+
+        private void writeLog(string line, StreamWriter sw)
+        {
+            if (attributes.logging)
+            {
+                sw.WriteLine(line);
+            }
+
+        }
+
     } //end partial class
 } //end namespace

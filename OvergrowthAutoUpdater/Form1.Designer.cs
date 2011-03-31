@@ -67,6 +67,7 @@
             this.lstDownloadProgress = new System.Windows.Forms.ListBox();
             this.lblIndividualDownloadProgress = new System.Windows.Forms.Label();
             this.bwUpdateFiles = new System.ComponentModel.BackgroundWorker();
+            this.loggingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sstripInfo.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.grpDownloadOptions.SuspendLayout();
@@ -235,6 +236,7 @@
             // 
             this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.createBackupToolStripMenuItem,
+            this.loggingToolStripMenuItem,
             this.downloadSequentiallyToolStripMenuItem});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
@@ -409,6 +411,15 @@
             this.bwUpdateFiles.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bwUpdateFiles_ProgressChanged);
             this.bwUpdateFiles.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bwUpdateFiles_RunWorkerCompleted);
             // 
+            // loggingToolStripMenuItem
+            // 
+            this.loggingToolStripMenuItem.CheckOnClick = true;
+            this.loggingToolStripMenuItem.Name = "loggingToolStripMenuItem";
+            this.loggingToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.loggingToolStripMenuItem.Text = "Logging";
+            this.loggingToolStripMenuItem.ToolTipText = "Will write which files were added/modified to a log.txt file";
+            this.loggingToolStripMenuItem.CheckedChanged += new System.EventHandler(this.loggingToolStripMenuItem_CheckedChanged);
+            // 
             // frmMain
             // 
             this.AcceptButton = this.btnDoUpdate;
@@ -494,6 +505,7 @@
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem cleanUpdatesFolderToolStripMenuItem;
         private System.ComponentModel.BackgroundWorker bwUpdateFiles;
+        private System.Windows.Forms.ToolStripMenuItem loggingToolStripMenuItem;
     }
 }
 
