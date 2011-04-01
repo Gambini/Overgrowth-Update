@@ -309,7 +309,7 @@ namespace OvergrowthAutoUpdater
             try
             {
                 if (!File.Exists(attributes.exeDirectory + @"Data\version.xml"))
-                    return null;
+                    throw new FileNotFoundException("version.xml does not exist");
 
                 StreamReader sread = new StreamReader(attributes.exeDirectory + @"Data\version.xml");
                 while (!sread.EndOfStream)
@@ -342,6 +342,64 @@ namespace OvergrowthAutoUpdater
                 //TODO: Catch some shit
             }
         } //end GetCurrentVersion
+
+
+        //this is poorly done and based on the version.xml not changing. However, I cannot think of a better
+        //way to write just a single word in to the middle of an xml file.
+        private bool ChangeCurrentVersion(int version)
+        {
+            sstriplblStatus.Text = "Changing version";
+            if (latestVersion != 0 && version > latestVersion)
+                MessageBox.Show("Cannot go past the lastest version available, which is" + latestVersion);
+
+            string line;
+            string[] data;
+            char[] delim = { '<', '>' };
+            bool ret = false;
+            try
+            {
+                if (!File.Exists(attributes.exeDirectory + @"Data\version.xml"))
+                    throw new FileNotFoundException("version.xml does not exist");
+
+                StringBuilder sbuild = new StringBuilder();
+                using (StreamReader sread = new StreamReader(attributes.exeDirectory + @"Data\version.xml"))
+                {
+                    while (!sread.EndOfStream)
+                    {
+                        line = sread.ReadLine();
+                        data = line.Split(delim);
+
+                        if (data.Length > 0 && data[1] == "shortname")
+                        {
+                            sbuild.AppendLine(data[0] + "<" + data[1] + ">a" + version + "<" + data[3] + ">");
+                            ret = true;
+                        }
+                        else
+                            sbuild.AppendLine(line);
+                    }
+                }
+
+                using (StreamWriter swrite = new StreamWriter(attributes.exeDirectory + @"Data\version.xml", false))
+                {
+                    swrite.Write(sbuild.ToString());
+                }
+
+                return ret;
+            }
+            catch (FileNotFoundException fnfex)
+            {
+                MessageBox.Show("Error in the ChangeCurrentVersion function.\n" +
+                    "The version.xml file could not be found, so the rest of the program will likely not work. " +
+                    "Please make sure that folder where Overgrowth.exe is in has a /Data/version.xml file.\n " +
+                    ".Net error message: " + fnfex.Message);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Something happened in the ChangeCurrentVersion function.\n" + ex.Message);
+                return false;
+            }
+        }
 
 
         private void writeLog(string line, StreamWriter sw)

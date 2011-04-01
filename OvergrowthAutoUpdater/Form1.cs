@@ -182,7 +182,6 @@ namespace OvergrowthAutoUpdater
         }
 
 
-        
         //I think I want this instead of "TextChanged"
         private void txtUpdateDir_Leave(object sender, EventArgs e)
         {
@@ -371,6 +370,38 @@ namespace OvergrowthAutoUpdater
         }
 
 
+        //Opens a form for the user to select which version to go to.
+        private void revertGameVersionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int version = 1;
+
+            //so the form doesn't get disposed before we get the data we need
+            using (RevertVersion rev = new RevertVersion(this))
+            {
+                DialogResult res = rev.ShowDialog();
+                if (res == DialogResult.OK)
+                    version = rev.retVersion;
+                else //the user closed the form without wanting to change
+                    return;
+            }
+
+            if (version != 0 && version != 0)
+            {
+                if (ChangeCurrentVersion(version))
+                {
+                    sstriplblStatus.Text = "Version change success. Click 'Download and Update' to update to latest version.";
+                    lblCurrentVersion.Text = "Current Overgrowth version: "+ GetCurrentVersion();
+                } 
+                else
+                    sstriplblStatus.Text = "Version change failed.";
+            }
+            else if (version == 0)
+                sstriplblStatus.Text = "Version change failed. You didn't select a valid version";
+            else if (version == 1)
+                sstriplblStatus.Text = "Version change failed. The variable never got set";
+
+        }//end revertGameVersionToolStripMenuItem_Click
+
 
         /*****************************************
         BackgroundWorker to do the UpdateFiles
@@ -425,6 +456,5 @@ namespace OvergrowthAutoUpdater
 
             bwUpdateFiles.RunWorkerAsync(); //I hope this doesn't go all recursive-crazy on me
         }
-
     } //end partial class
 } //end namespace

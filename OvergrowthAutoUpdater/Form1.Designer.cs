@@ -50,6 +50,7 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createBackupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loggingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.downloadSequentiallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -67,7 +68,7 @@
             this.lstDownloadProgress = new System.Windows.Forms.ListBox();
             this.lblIndividualDownloadProgress = new System.Windows.Forms.Label();
             this.bwUpdateFiles = new System.ComponentModel.BackgroundWorker();
-            this.loggingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.revertGameVersionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sstripInfo.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.grpDownloadOptions.SuspendLayout();
@@ -206,6 +207,7 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cleanUpdatesFolderToolStripMenuItem,
+            this.revertGameVersionToolStripMenuItem,
             this.toolStripSeparator1,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -215,7 +217,7 @@
             // cleanUpdatesFolderToolStripMenuItem
             // 
             this.cleanUpdatesFolderToolStripMenuItem.Name = "cleanUpdatesFolderToolStripMenuItem";
-            this.cleanUpdatesFolderToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.cleanUpdatesFolderToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
             this.cleanUpdatesFolderToolStripMenuItem.Text = "Clean Updates folder";
             this.cleanUpdatesFolderToolStripMenuItem.ToolTipText = "Deletes all of the files from the update directory";
             this.cleanUpdatesFolderToolStripMenuItem.Click += new System.EventHandler(this.cleanUpdatesFolderToolStripMenuItem_Click);
@@ -223,12 +225,12 @@
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(181, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(187, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -252,6 +254,15 @@
             this.createBackupToolStripMenuItem.Text = "Create Backup";
             this.createBackupToolStripMenuItem.ToolTipText = "Creates a backup of every file that will be replaced in the update process.";
             this.createBackupToolStripMenuItem.CheckedChanged += new System.EventHandler(this.createBackupToolStripMenuItem_CheckedChanged);
+            // 
+            // loggingToolStripMenuItem
+            // 
+            this.loggingToolStripMenuItem.CheckOnClick = true;
+            this.loggingToolStripMenuItem.Name = "loggingToolStripMenuItem";
+            this.loggingToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.loggingToolStripMenuItem.Text = "Logging";
+            this.loggingToolStripMenuItem.ToolTipText = "Will write which files were added/modified to a log.txt file";
+            this.loggingToolStripMenuItem.CheckedChanged += new System.EventHandler(this.loggingToolStripMenuItem_CheckedChanged);
             // 
             // downloadSequentiallyToolStripMenuItem
             // 
@@ -411,14 +422,14 @@
             this.bwUpdateFiles.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bwUpdateFiles_ProgressChanged);
             this.bwUpdateFiles.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bwUpdateFiles_RunWorkerCompleted);
             // 
-            // loggingToolStripMenuItem
+            // revertGameVersionToolStripMenuItem
             // 
-            this.loggingToolStripMenuItem.CheckOnClick = true;
-            this.loggingToolStripMenuItem.Name = "loggingToolStripMenuItem";
-            this.loggingToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
-            this.loggingToolStripMenuItem.Text = "Logging";
-            this.loggingToolStripMenuItem.ToolTipText = "Will write which files were added/modified to a log.txt file";
-            this.loggingToolStripMenuItem.CheckedChanged += new System.EventHandler(this.loggingToolStripMenuItem_CheckedChanged);
+            this.revertGameVersionToolStripMenuItem.Name = "revertGameVersionToolStripMenuItem";
+            this.revertGameVersionToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
+            this.revertGameVersionToolStripMenuItem.Text = "Revert game version...";
+            this.revertGameVersionToolStripMenuItem.ToolTipText = "Changes your version to a previous version. Useful if you want to make sure all o" +
+                "f the previous updates installed correctly.";
+            this.revertGameVersionToolStripMenuItem.Click += new System.EventHandler(this.revertGameVersionToolStripMenuItem_Click);
             // 
             // frmMain
             // 
@@ -506,6 +517,7 @@
         private System.Windows.Forms.ToolStripMenuItem cleanUpdatesFolderToolStripMenuItem;
         private System.ComponentModel.BackgroundWorker bwUpdateFiles;
         private System.Windows.Forms.ToolStripMenuItem loggingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem revertGameVersionToolStripMenuItem;
     }
 }
 
