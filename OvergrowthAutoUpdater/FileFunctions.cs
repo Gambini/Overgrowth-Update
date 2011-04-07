@@ -369,7 +369,7 @@ namespace OvergrowthAutoUpdater
                         line = sread.ReadLine();
                         data = line.Split(delim);
 
-                        if (data.Length > 0 && data[1] == "shortname")
+                        if (data.Length > 0 && data[1] == "shortname") //GetCurrentVersion only looks at the shortname property
                         {
                             sbuild.AppendLine(data[0] + "<" + data[1] + ">a" + version + "<" + data[3] + ">");
                             ret = true;

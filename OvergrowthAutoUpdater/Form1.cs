@@ -91,6 +91,7 @@ namespace OvergrowthAutoUpdater
                 case "Download and Update": rbtnDownloadAndUpdate.Checked = true; break;
                 default: break;
             }
+            loggingToolStripMenuItem.Checked = attributes.logging;
         }
 
 
