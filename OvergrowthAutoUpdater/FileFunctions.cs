@@ -286,7 +286,8 @@ namespace OvergrowthAutoUpdater
         ///<param name="deleteParameterDirectory"> If we should delete the directory that we passed as well. </param>
         private void CleanUpdatesFolder(string directory, bool deleteParameterDirectory)
         {
-            bwDeleteFiles.ReportProgress(0);
+            if(bwDeleteFiles.IsBusy)
+                bwDeleteFiles.ReportProgress(0);
             try
             {
                 string[] files = Directory.GetFiles(directory, "*", SearchOption.AllDirectories);
