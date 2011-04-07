@@ -125,11 +125,17 @@ namespace OvergrowthAutoUpdater
             ArrayList commonDirectories = new ArrayList();
             ArrayList newFiles = new ArrayList();
             ZipFile backup;
+            string uncompressedDirectory = path.Remove(path.IndexOf(".zip"));
+            string salpha = path.Remove(0, path.IndexOf(".zip") - 4); //only used on the next 2 lines, gets a###.zip
+            salpha = salpha.Remove(salpha.IndexOf(".zip")); //gets a###
+            int alpha = int.Parse(salpha.Remove(0,1)); //this should get the number
 
             using (ZipFile zip = ZipFile.Read(path))
             {
                 bwUpdateFiles.ReportProgress(1);
-                zip.ExtractAll(path.Remove(path.IndexOf(".zip")));
+                if (Directory.Exists(uncompressedDirectory))
+                    CleanUpdatesFolder(uncompressedDirectory, true);
+                zip.ExtractAll(uncompressedDirectory);
                 zip.Dispose();
             }
 
@@ -140,7 +146,7 @@ namespace OvergrowthAutoUpdater
                 //will create a log file regardless of if the user selected logging
                 StreamWriter sw = new StreamWriter("log.txt", true);
                 if (attributes.logging)  //will only ever write to the log if the user selected logging
-                    sw.WriteLine("\n\nLog " + DateTime.Now.ToLongDateString() + " from " + GetCurrentVersion() + " to the next.");
+                    sw.WriteLine("\n\nLog " + DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLocalTime() + " from " + GetCurrentVersion() + " to a" + alpha);
 
                 //get all of the directories from each one.
                 updateDirectories = Directory.GetDirectories(path, "*", SearchOption.AllDirectories);
@@ -153,8 +159,6 @@ namespace OvergrowthAutoUpdater
                 {
                     for (int c = 0; c < currentDirectories.Length; c++)
                     {
-                        //string b = updateDirectories[u].Remove(0, path.Length); //for debug
-                        //string d = currentDirectories[c].Remove(0, attributes.exeDirectory.Length);
                         if (updateDirectories[u].Remove(0, path.Length) == currentDirectories[c].Remove(0, attributes.exeDirectory.Length))
                         {
                             commonDirectories.Add(updateDirectories[u].Remove(0, path.Length));//does not end with \\
@@ -173,26 +177,31 @@ namespace OvergrowthAutoUpdater
                 }
 
                 if (attributes.createBackup)
-                    backup = new ZipFile(path + "backupfiles.zip");
+                {
+                    string backupPath = attributes.updateDirectory + "\\backupfiles" + alpha + ".zip";
+                    if (File.Exists(backupPath))
+                        File.Delete(backupPath);
+                    backup = new ZipFile(backupPath);
+                } 
                 else backup = new ZipFile();//not going to use it
 
                 bwUpdateFiles.ReportProgress(3);
                 foreach (string dir in commonDirectories)
                 {
+                    //no more clouding up the install folder with useless folders
+                    if (dir == "Mac" || dir == "Windows") continue;
+
                     if (attributes.createBackup)
                         backup.AddDirectoryByName(dir);
 
                     updateFiles = Directory.GetFiles(path + dir + "\\");
                     currentFiles = Directory.GetFiles(attributes.exeDirectory + dir + "\\");
-                    if (updateFiles.Length == 0 || currentFiles.Length == 0) continue;
 
                     //go through all of the files
                     for (int u = 0; u < updateFiles.Length; u++)
                     {
                         for (int c = 0; c < currentFiles.Length; c++)
                         {
-                            //string a = updateFiles[u].Remove(0, path.Length + dir.Length); //for debug
-                            //string b = currentFiles[c].Remove(0, attributes.exeDirectory.Length + dir.Length);
                             //if the files are the same
                             if (updateFiles[u].Remove(0, path.Length + dir.Length) == currentFiles[c].Remove(0, attributes.exeDirectory.Length + dir.Length))
                             {
@@ -214,54 +223,26 @@ namespace OvergrowthAutoUpdater
                                 }
                             }
                         }
+
+                        if (currentFiles.Length == 0) //It is an empty folder, so the inner 'for' loop will not run
+                        {
+                            File.Copy(updateFiles[u], attributes.exeDirectory + dir + "\\" + updateFiles[u].Remove(0, path.Length + dir.Length));
+                            writeLog("New file " + updateFiles[u] + " to " + attributes.exeDirectory + dir + "\\" + updateFiles[u].Remove(0, path.Length + dir.Length), sw);
+                        }
                     } //end outer 'for'
                 }//end foreach
 
                 bwUpdateFiles.ReportProgress(4);
                 //copying over the windows only stuff
-                //because we can only do one pattern at a time, going to have some copypasta code
+                //I'm just going to copy all of the files over, just in case the user likes to debug stuff
                 path = path + "Windows\\";
-                updateFiles = Directory.GetFiles(path, "*.exe");
-                currentFiles = Directory.GetFiles(attributes.exeDirectory, "*.exe");
+                updateFiles = Directory.GetFiles(path);
+                currentFiles = Directory.GetFiles(attributes.exeDirectory); //this should never be empty
                 //go through all of the files
                 for (int u = 0; u < updateFiles.Length; u++)
                 {
                     for (int c = 0; c < currentFiles.Length; c++)
                     {
-                        //string a = updateFiles[u].Remove(0, path.Length);
-                        //string b = currentFiles[c].Remove(0, attributes.exeDirectory.Length);
-                        //if the files are the same
-                        if (updateFiles[u].Remove(0, path.Length) == currentFiles[c].Remove(0, attributes.exeDirectory.Length))
-                        {
-                            if (attributes.createBackup)
-                                backup.AddFile(currentFiles[c]);
-
-                            File.Delete(currentFiles[c]); //delete the file, so we don't get errors from the next line
-                            File.Copy(updateFiles[u], currentFiles[c]);
-                            writeLog("Copy file " + updateFiles[u] + " to " + currentFiles[c], sw);
-                        }
-                        else //it is a new file
-                        {
-                            if (!File.Exists(attributes.exeDirectory + updateFiles[u].Remove(0, path.Length)))
-                            {
-                                //                                                              The name of the file
-                                File.Copy(updateFiles[u], attributes.exeDirectory + updateFiles[u].Remove(0, path.Length));
-                                writeLog("New file " + updateFiles[u] + " to " + attributes.exeDirectory + updateFiles[u].Remove(0, path.Length), sw);
-                            }
-                        }
-                    }
-                } //end outer 'for'
-
-                //I feel really bad for copypasting a huge block. 
-                updateFiles = Directory.GetFiles(path, "*.dll");
-                currentFiles = Directory.GetFiles(attributes.exeDirectory, "*.dll");
-                //go through all of the files
-                for (int u = 0; u < updateFiles.Length; u++)
-                {
-                    for (int c = 0; c < currentFiles.Length; c++)
-                    {
-                        //string a = updateFiles[u].Remove(0, path.Length); //for debug
-                        //string b = currentFiles[c].Remove(0, attributes.exeDirectory.Length);
                         //if the files are the same
                         if (updateFiles[u].Remove(0, path.Length) == currentFiles[c].Remove(0, attributes.exeDirectory.Length))
                         {
@@ -291,12 +272,48 @@ namespace OvergrowthAutoUpdater
                 }
 
                 sw.Close();
+                CleanUpdatesFolder(uncompressedDirectory, true);
             }
             catch (Exception ex)
             {
                 MessageBox.Show("something happened in the ReplaceFiles function\n" + ex.Message);
             }
         } //end ReplaceFiles
+
+
+        ///<summary>Deletes everything from the given directory.</summary>
+        ///<param name="directory"> The directory to delete from.</param>
+        ///<param name="deleteParameterDirectory"> If we should delete the directory that we passed as well. </param>
+        private void CleanUpdatesFolder(string directory, bool deleteParameterDirectory)
+        {
+            bwDeleteFiles.ReportProgress(0);
+            try
+            {
+                string[] files = Directory.GetFiles(directory, "*", SearchOption.AllDirectories);
+                string[] dirs = Directory.GetDirectories(directory);
+
+                foreach (string file in files)
+                {
+                    File.SetAttributes(file, FileAttributes.Normal);
+                    File.Delete(file);
+                }
+
+                foreach (string dir in dirs)
+                {
+                    Directory.Delete(dir, true);
+                }
+
+                //An example of when we don't want to delete it is if we pass the update directory.
+                if (deleteParameterDirectory)
+                {
+                    Directory.Delete(directory);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error in the CleanUpdatesFolder function.\n" + ex.Message);
+            }
+        }
 
 
         /// <summary> Reads the version.xml file to determine the alpha version</summary>

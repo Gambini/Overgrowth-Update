@@ -1,4 +1,4 @@
-This is the Overgrowth Updater v1.4. It will update your Overgrowth game to the latest version, regardless of 
+This is the Overgrowth Updater v1.5. It will update your Overgrowth game to the latest version, regardless of 
 what version you are currently on.
 
 Quick how to use:
@@ -6,7 +6,7 @@ Press the top "Browse..." button and navigate to where you installed Overgrowth,
 Press the bottom "Browse..." button and point to a folder where you would like to download the update files.
 Click the "Download and Update" option at the bottom left
 Click the "Download and Update" button at the bottom right
-Wait for things to download
+Wait for things to download and install
 Assuming no errors popped up, your Overgrowth game is now updated.
 
 
@@ -30,17 +30,32 @@ If there are some people that would like it in a lower (like 3), then say someth
 Updating this updater: 
 -Drag the OvergrowthUpdater.exe from the .zip file into the folder to replace the old one.
 -Add any new files that were not there previously
-IMPORTANT: If you installed a version of this updater (like 1.1) and I released a new version that says
-   "Major bug fix" (like 1.3), then you might want to do the following:
-	1.)Clean/delete the updates folder. You can do this from within the updater, or just delete the folder(s) yourself.
-	2.)Navigate to [Overgrowth install location]\Data\version.xml and open it up. Modify the 'shortname' property to 
-	  a version from before you used the updater. The program only looks at shortname, so don't need to modify others.
+IMPORTANT: If you installed a version of this updater (like 1.3) and I released a new version that says
+   "Major bug fix" (like 1.5), then you might want to do the following:
+	1.)Go to File->Revert game version...	(only in 1.5 or higher)
+	2.)In the first dropdown box, chose a version from before you started using this tool. Leave the
+	second box blank. Hit "Ok".
 	3.)Run the updater as normal.
+	This will update your game from before you started using the tool to the latest version.
+	If you still have some of the .zip update files, then with some manipulation of the first
+	and second dropdown boxes on the revert screen, you can minimize the amount you need to 
+	re-download.
 
 Icon made by ZramuliZ from the Overgrowth forums.
 
 
 Changelog:
+v1.5:=========================================
+Major bug fix
+-Again, a silly error on my part that stopped some of the update files from being copied over, which is now fixed.
+Features:
+-File->Revert game version...
+   Added a feature to revert to a previous version (only modifies version.xml) and then update to either the latest
+   version, or a version of your choosing.
+-Behind-the-scenes work on removing files to make the reverting process painless. It initially hurt.
+-Added a timestamp to the log file, rather than just a day month and year.
+-Fixed a bug where the logging option wasn't being restored from the config.txt each time it was run.
+-Moved File->Clean Update Folder to its own thread, because it started to freeze the UI thread
 v1.4:=========================================
 -Added a feature to log the changes that the program makes. If enabled in the 'Options' dropdown menu, then
    a file will be created in the directory of the updater named log.txt. You can compare what the log says

@@ -79,7 +79,7 @@ namespace OvergrowthAutoUpdater
                 currentVersion = GetCurrentVersion();
                 lblCurrentVersion.Text = "Current Overgrowth version: " + currentVersion;
                 txtExeDir.Text = attributes.exeDirectory + "Overgrowth.exe";
-                latestVersion = FindLatestVersion(int.Parse(currentVersion.Remove(0, 1)));
+                latestVersion = FindLatestVersion(int.Parse(currentVersion.Remove(0, 1))); //might make startup long on slow Internet computers
             }
             cboxHaveUpdate.Checked = attributes.hasUpdateFiles;
             createBackupToolStripMenuItem.Checked = attributes.createBackup;
@@ -300,8 +300,6 @@ namespace OvergrowthAutoUpdater
             toggleDownloadOptions(false);
             cboxHaveUpdate.Enabled = false;
 
-            latestVersion = FindLatestVersion(int.Parse(GetCurrentVersion().Remove(0,1)));
-
             if (rbtnDownload.Checked || rbtnDownloadAndUpdate.Checked)
                 DownloadUpdateFiles();
             if (rbtnUpdate.Checked)
@@ -347,27 +345,7 @@ namespace OvergrowthAutoUpdater
         //Deletes the files, then the directories. You can not delete non-empty directories.
         private void cleanUpdatesFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            try
-            {
-                string[] files = Directory.GetFiles(attributes.updateDirectory, "*", SearchOption.AllDirectories);
-                string[] dirs = Directory.GetDirectories(attributes.updateDirectory);
-
-                foreach (string file in files)
-                {
-                    File.SetAttributes(file, FileAttributes.Normal);
-                    File.Delete(file);
-                }
-
-                foreach (string dir in dirs)
-                {
-                    Directory.Delete(dir, true);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error in the CleanUpdatesFolder function.\n" + ex.Message +
-                    "\n The function might have properly run. You can check your update folder to see if it did.");
-            }
+            bwDeleteFiles.RunWorkerAsync();
         }
 
 
@@ -375,18 +353,22 @@ namespace OvergrowthAutoUpdater
         private void revertGameVersionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int version = 1;
+            int toVersion = 1;
 
             //so the form doesn't get disposed before we get the data we need
             using (RevertVersion rev = new RevertVersion(this))
             {
                 DialogResult res = rev.ShowDialog();
                 if (res == DialogResult.OK)
+                {
                     version = rev.retVersion;
+                    toVersion = rev.retToVersion;
+                }
                 else //the user closed the form without wanting to change
                     return;
             }
 
-            if (version != 0 && version != 0)
+            if (version != 0)
             {
                 if (ChangeCurrentVersion(version))
                 {
@@ -398,8 +380,16 @@ namespace OvergrowthAutoUpdater
             }
             else if (version == 0)
                 sstriplblStatus.Text = "Version change failed. You didn't select a valid version";
-            else if (version == 1)
-                sstriplblStatus.Text = "Version change failed. The variable never got set";
+            else if (version == 1 || toVersion == 1) //we only get here when bad things happen
+                sstriplblStatus.Text = "Version change failed. The variable(s) never got set";
+
+            if (toVersion != 0) //if we specified a version we want to update to
+            {
+                if (toVersion < version) 
+                    sstriplblStatus.Text = "Will not update to the version specified, because it is less than the reverted version.";
+                else
+                    latestVersion = toVersion;
+            }
 
         }//end revertGameVersionToolStripMenuItem_Click
 
@@ -456,6 +446,30 @@ namespace OvergrowthAutoUpdater
             }
 
             bwUpdateFiles.RunWorkerAsync(); //I hope this doesn't go all recursive-crazy on me
+        }
+
+
+        /*****************************************
+        BackgroundWorker to delete files
+        *****************************************/
+        private void bwDeleteFiles_DoWork(object sender, DoWorkEventArgs e)
+        {
+            CleanUpdatesFolder(attributes.updateDirectory, false);
+        }
+
+        private void bwDeleteFiles_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            toggleDownloadOptions(true);
+            sstriplblStatus.Text = "Finished deleting files from the update directory.";
+        }
+
+        private void bwDeleteFiles_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            if (e.ProgressPercentage == 0)
+            {
+                toggleDownloadOptions(false); //so we don't attempt to download stuff in the middle of deleting
+                sstriplblStatus.Text = "Deleting files from the update directory.";
+            }
         }
     } //end partial class
 } //end namespace

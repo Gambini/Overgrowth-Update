@@ -46,6 +46,9 @@ namespace OvergrowthAutoUpdater
                 foreach (Download dl in clients)
                 {
                     dl.wclient.BaseAddress = updateURL + "a" + dl.alpha + ".zip";
+                    //TODO: right here, we could make it so the user doesn't have to download the file again?
+                    if (File.Exists(@attributes.updateDirectory + "\\a" + dl.alpha + ".zip")) //so we don't get errors
+                        File.Delete(@attributes.updateDirectory + "\\a" + dl.alpha + ".zip");
                     //because DlFileAsync combines BaseAddress with the adress given, I can create an empty uri
                     dl.wclient.DownloadFileAsync(new Uri("", UriKind.Relative), @attributes.updateDirectory + "\\a" + dl.alpha + ".zip");
                     lstDownloadProgress.Items.Add(dl);

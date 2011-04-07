@@ -32,6 +32,9 @@
             this.cboxVersions = new System.Windows.Forms.ComboBox();
             this.btnOk = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.lblRevert = new System.Windows.Forms.Label();
+            this.lblUpdate = new System.Windows.Forms.Label();
+            this.cboxUpdate = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // lblInfo
@@ -46,7 +49,7 @@
             // cboxVersions
             // 
             this.cboxVersions.FormattingEnabled = true;
-            this.cboxVersions.Location = new System.Drawing.Point(12, 96);
+            this.cboxVersions.Location = new System.Drawing.Point(12, 127);
             this.cboxVersions.Name = "cboxVersions";
             this.cboxVersions.Size = new System.Drawing.Size(121, 21);
             this.cboxVersions.TabIndex = 1;
@@ -54,7 +57,7 @@
             // btnOk
             // 
             this.btnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOk.Location = new System.Drawing.Point(174, 94);
+            this.btnOk.Location = new System.Drawing.Point(168, 165);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
             this.btnOk.TabIndex = 2;
@@ -65,18 +68,47 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(255, 94);
+            this.btnCancel.Location = new System.Drawing.Point(249, 165);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 3;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             // 
+            // lblRevert
+            // 
+            this.lblRevert.AutoSize = true;
+            this.lblRevert.Location = new System.Drawing.Point(15, 108);
+            this.lblRevert.Name = "lblRevert";
+            this.lblRevert.Size = new System.Drawing.Size(99, 13);
+            this.lblRevert.TabIndex = 4;
+            this.lblRevert.Text = "Version to revert to:";
+            // 
+            // lblUpdate
+            // 
+            this.lblUpdate.AutoSize = true;
+            this.lblUpdate.Location = new System.Drawing.Point(12, 151);
+            this.lblUpdate.Name = "lblUpdate";
+            this.lblUpdate.Size = new System.Drawing.Size(150, 13);
+            this.lblUpdate.TabIndex = 6;
+            this.lblUpdate.Text = "(Optional)Version to update to:";
+            // 
+            // cboxUpdate
+            // 
+            this.cboxUpdate.FormattingEnabled = true;
+            this.cboxUpdate.Location = new System.Drawing.Point(12, 167);
+            this.cboxUpdate.Name = "cboxUpdate";
+            this.cboxUpdate.Size = new System.Drawing.Size(121, 21);
+            this.cboxUpdate.TabIndex = 5;
+            // 
             // RevertVersion
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(342, 129);
+            this.ClientSize = new System.Drawing.Size(342, 200);
+            this.Controls.Add(this.lblUpdate);
+            this.Controls.Add(this.cboxUpdate);
+            this.Controls.Add(this.lblRevert);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOk);
             this.Controls.Add(this.cboxVersions);
@@ -97,5 +129,8 @@
         private System.Windows.Forms.ComboBox cboxVersions;
         private System.Windows.Forms.Button btnOk;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.Label lblRevert;
+        private System.Windows.Forms.Label lblUpdate;
+        private System.Windows.Forms.ComboBox cboxUpdate;
     }
 }

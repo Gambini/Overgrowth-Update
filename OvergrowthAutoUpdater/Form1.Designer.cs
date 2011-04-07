@@ -46,6 +46,7 @@
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cleanUpdatesFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.revertGameVersionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -68,7 +69,7 @@
             this.lstDownloadProgress = new System.Windows.Forms.ListBox();
             this.lblIndividualDownloadProgress = new System.Windows.Forms.Label();
             this.bwUpdateFiles = new System.ComponentModel.BackgroundWorker();
-            this.revertGameVersionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.bwDeleteFiles = new System.ComponentModel.BackgroundWorker();
             this.sstripInfo.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.grpDownloadOptions.SuspendLayout();
@@ -157,6 +158,7 @@
             this.sstripInfo.Location = new System.Drawing.Point(0, 420);
             this.sstripInfo.Name = "sstripInfo";
             this.sstripInfo.Size = new System.Drawing.Size(600, 22);
+            this.sstripInfo.SizingGrip = false;
             this.sstripInfo.TabIndex = 12;
             this.sstripInfo.Text = "statusStrip1";
             // 
@@ -221,6 +223,15 @@
             this.cleanUpdatesFolderToolStripMenuItem.Text = "Clean Updates folder";
             this.cleanUpdatesFolderToolStripMenuItem.ToolTipText = "Deletes all of the files from the update directory";
             this.cleanUpdatesFolderToolStripMenuItem.Click += new System.EventHandler(this.cleanUpdatesFolderToolStripMenuItem_Click);
+            // 
+            // revertGameVersionToolStripMenuItem
+            // 
+            this.revertGameVersionToolStripMenuItem.Name = "revertGameVersionToolStripMenuItem";
+            this.revertGameVersionToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
+            this.revertGameVersionToolStripMenuItem.Text = "Revert game version...";
+            this.revertGameVersionToolStripMenuItem.ToolTipText = "Changes your version to a previous version. Useful if you want to make sure all o" +
+                "f the previous updates installed correctly.";
+            this.revertGameVersionToolStripMenuItem.Click += new System.EventHandler(this.revertGameVersionToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
@@ -422,14 +433,12 @@
             this.bwUpdateFiles.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bwUpdateFiles_ProgressChanged);
             this.bwUpdateFiles.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bwUpdateFiles_RunWorkerCompleted);
             // 
-            // revertGameVersionToolStripMenuItem
+            // bwDeleteFiles
             // 
-            this.revertGameVersionToolStripMenuItem.Name = "revertGameVersionToolStripMenuItem";
-            this.revertGameVersionToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
-            this.revertGameVersionToolStripMenuItem.Text = "Revert game version...";
-            this.revertGameVersionToolStripMenuItem.ToolTipText = "Changes your version to a previous version. Useful if you want to make sure all o" +
-                "f the previous updates installed correctly.";
-            this.revertGameVersionToolStripMenuItem.Click += new System.EventHandler(this.revertGameVersionToolStripMenuItem_Click);
+            this.bwDeleteFiles.WorkerReportsProgress = true;
+            this.bwDeleteFiles.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bwDeleteFiles_DoWork);
+            this.bwDeleteFiles.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bwDeleteFiles_ProgressChanged);
+            this.bwDeleteFiles.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bwDeleteFiles_RunWorkerCompleted);
             // 
             // frmMain
             // 
@@ -518,6 +527,7 @@
         private System.ComponentModel.BackgroundWorker bwUpdateFiles;
         private System.Windows.Forms.ToolStripMenuItem loggingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem revertGameVersionToolStripMenuItem;
+        private System.ComponentModel.BackgroundWorker bwDeleteFiles;
     }
 }
 
