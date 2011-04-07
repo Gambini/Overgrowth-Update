@@ -1,5 +1,5 @@
 This is the Overgrowth Updater v1.5. It will update your Overgrowth game to the latest version, regardless of 
-what version you are currently on.
+what version you are currently on. (Assuming is is higher than a112)
 
 Quick how to use:
 Press the top "Browse..." button and navigate to where you installed Overgrowth, and select your Overgrowth.exe.
@@ -34,7 +34,7 @@ IMPORTANT: If you installed a version of this updater (like 1.3) and I released 
    "Major bug fix" (like 1.5), then you might want to do the following:
 	1.)Go to File->Revert game version...	(only in 1.5 or higher)
 	2.)In the first dropdown box, chose a version from before you started using this tool. Leave the
-	second box blank. Hit "Ok".
+	second box blank. Hit "Ok". (it was a118 for me)
 	3.)Run the updater as normal.
 	This will update your game from before you started using the tool to the latest version.
 	If you still have some of the .zip update files, then with some manipulation of the first
