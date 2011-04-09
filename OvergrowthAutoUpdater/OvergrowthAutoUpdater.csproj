@@ -101,6 +101,7 @@
     <EmbeddedResource Include="RevertVersion.resx">
       <DependentUpon>RevertVersion.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="app.config" />
     <None Include="app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

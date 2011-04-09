@@ -56,7 +56,9 @@ namespace OvergrowthAutoUpdater
         /// <summary>true if the program is allowed to apply the update</summary>
         public bool canApplyUpdate = false;
         /// <summary>I need this in the global scope, it contains what update to apply next</summary>
-        public UpdateData udata; 
+        public UpdateData udata;
+        /// <summary>Will be checked to see if we are going to update the program when it closes</summary>
+        public bool willDelete = false;
 
         public frmMain()
         {
@@ -394,6 +396,12 @@ namespace OvergrowthAutoUpdater
         }//end revertGameVersionToolStripMenuItem_Click
 
 
+        //Will update the program
+        private void updateThisProgramToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bwUpdateTool.RunWorkerAsync();
+        }
+
         /*****************************************
         BackgroundWorker to do the UpdateFiles
         *****************************************/
@@ -470,6 +478,49 @@ namespace OvergrowthAutoUpdater
                 toggleDownloadOptions(false); //so we don't attempt to download stuff in the middle of deleting
                 sstriplblStatus.Text = "Deleting files from the update directory.";
             }
+        }
+
+
+        /************
+        For updating this program
+        ******************/
+        private void bwUpdateTool_DoWork(object sender, DoWorkEventArgs e)
+        {
+            //download file
+            WebClient wclient = new WebClient();
+            string filename = "OvergrowthUpdaterv" + /*version here*/"" +".zip";
+            wclient.DownloadFile("https://github.com/downloads/Gambini/Overgrowth-Update/OvergrowthUpdaterv" + filename, filename);
+
+            //update files except .exe file. This might be bad if one of the files is already opened
+            string folder = filename.Remove(filename.IndexOf(".zip"));
+            if(Directory.Exists(folder))  CleanUpdatesFolder(folder, true); 
+            using(ZipFile zip = new ZipFile(filename))
+            {
+                zip.ExtractAll(folder);
+            }
+
+            string[] newfiles = Directory.GetFiles(folder);
+            string name;
+            string currdirectory = Directory.GetCurrentDirectory() + "\\";
+            for (int i = 0; i < newfiles.Length; i++)
+            {
+                name = newfiles[i].Remove(0, currdirectory.Length); //so we only get the file name
+
+
+                if (File.Exists(currdirectory + name))
+                {
+                    if (name == "OvergrowthAutoUpdater.exe")
+                    {
+                        //find a way to do something about it
+                    }
+                    else
+                        File.Delete(currdirectory + name); //so we don't get errors on copy
+                }
+                    
+
+                File.Copy(newfiles[i], currdirectory + name);
+            }
+            
         }
     } //end partial class
 } //end namespace

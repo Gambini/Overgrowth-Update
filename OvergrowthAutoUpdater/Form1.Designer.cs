@@ -70,6 +70,9 @@
             this.lblIndividualDownloadProgress = new System.Windows.Forms.Label();
             this.bwUpdateFiles = new System.ComponentModel.BackgroundWorker();
             this.bwDeleteFiles = new System.ComponentModel.BackgroundWorker();
+            this.updateAvailableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.updateThisProgramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.bwUpdateTool = new System.ComponentModel.BackgroundWorker();
             this.sstripInfo.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.grpDownloadOptions.SuspendLayout();
@@ -198,7 +201,8 @@
             this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.optionsToolStripMenuItem,
-            this.aboutToolStripMenuItem});
+            this.aboutToolStripMenuItem,
+            this.updateAvailableToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
             this.menuStrip.Size = new System.Drawing.Size(600, 24);
@@ -440,6 +444,30 @@
             this.bwDeleteFiles.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bwDeleteFiles_ProgressChanged);
             this.bwDeleteFiles.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bwDeleteFiles_RunWorkerCompleted);
             // 
+            // updateAvailableToolStripMenuItem
+            // 
+            this.updateAvailableToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.updateThisProgramToolStripMenuItem});
+            this.updateAvailableToolStripMenuItem.Enabled = false;
+            this.updateAvailableToolStripMenuItem.Name = "updateAvailableToolStripMenuItem";
+            this.updateAvailableToolStripMenuItem.Size = new System.Drawing.Size(118, 20);
+            this.updateAvailableToolStripMenuItem.Text = "*Update Available*";
+            this.updateAvailableToolStripMenuItem.ToolTipText = "Click this dropdown menu and select \"Update this program...\" to update. A restart" +
+                " of this program will be required.";
+            this.updateAvailableToolStripMenuItem.Visible = false;
+            // 
+            // updateThisProgramToolStripMenuItem
+            // 
+            this.updateThisProgramToolStripMenuItem.Name = "updateThisProgramToolStripMenuItem";
+            this.updateThisProgramToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+            this.updateThisProgramToolStripMenuItem.Text = "Update this program...";
+            this.updateThisProgramToolStripMenuItem.ToolTipText = "Downloads the file to be updated to.";
+            this.updateThisProgramToolStripMenuItem.Click += new System.EventHandler(this.updateThisProgramToolStripMenuItem_Click);
+            // 
+            // bwUpdateTool
+            // 
+            this.bwUpdateTool.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bwUpdateTool_DoWork);
+            // 
             // frmMain
             // 
             this.AcceptButton = this.btnDoUpdate;
@@ -528,6 +556,9 @@
         private System.Windows.Forms.ToolStripMenuItem loggingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem revertGameVersionToolStripMenuItem;
         private System.ComponentModel.BackgroundWorker bwDeleteFiles;
+        private System.Windows.Forms.ToolStripMenuItem updateAvailableToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem updateThisProgramToolStripMenuItem;
+        private System.ComponentModel.BackgroundWorker bwUpdateTool;
     }
 }
 

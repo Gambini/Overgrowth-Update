@@ -46,12 +46,18 @@ namespace OvergrowthAutoUpdater
                 foreach (Download dl in clients)
                 {
                     dl.wclient.BaseAddress = updateURL + "a" + dl.alpha + ".zip";
-                    //TODO: right here, we could make it so the user doesn't have to download the file again?
-                    if (File.Exists(@attributes.updateDirectory + "\\a" + dl.alpha + ".zip")) //so we don't get errors
-                        File.Delete(@attributes.updateDirectory + "\\a" + dl.alpha + ".zip");
-                    //because DlFileAsync combines BaseAddress with the adress given, I can create an empty uri
-                    dl.wclient.DownloadFileAsync(new Uri("", UriKind.Relative), @attributes.updateDirectory + "\\a" + dl.alpha + ".zip");
-                    lstDownloadProgress.Items.Add(dl);
+                    //So we don't make the user re-download every update.
+                    if (File.Exists(@attributes.updateDirectory + "\\a" + dl.alpha + ".zip"))
+                    {
+                        //'trick' it to think that the download is completed. This will make the items be out of order, more than likely
+                        DownloadFileCompleted(dl.wclient, new AsyncCompletedEventArgs(new Exception(), false, new object()));
+                    }
+                    else
+                    {
+                        //because DlFileAsync combines BaseAddress with the adress given, I can create an empty uri
+                        dl.wclient.DownloadFileAsync(new Uri("", UriKind.Relative), @attributes.updateDirectory + "\\a" + dl.alpha + ".zip");
+                        lstDownloadProgress.Items.Add(dl);
+                    }
                 }
             }
             catch (Exception ex)
@@ -76,8 +82,9 @@ namespace OvergrowthAutoUpdater
                 {
                     req.Abort(); //so we start with new streams
                     res.Close();
-                    req = (HttpWebRequest)WebRequest.Create(updateURL + "a" + (++latest) + ".zip");
-                    sstripInfo.Text = "Requesting status of " + updateURL + "a" + latest + ".zip";
+                    latest += 1; //set up checking for the next version up
+                    req = (HttpWebRequest)WebRequest.Create(updateURL + "a" + latest + ".zip");
+                    sstriplblStatus.Text = "Requesting status of " + updateURL + "a" + latest + ".zip";
                     res = (HttpWebResponse)req.GetResponse();
                 }
                 return latest -= 1;
@@ -85,9 +92,8 @@ namespace OvergrowthAutoUpdater
             catch (Exception ex) //comes here when the file doesn't exist on the site.
             {
                 //do some extra error checking. for now, I'm going to assume that everything worked fine
-                sstripInfo.Text = "Idle";
+                sstriplblStatus.Text = "Idle";
                 return latest -= 1;
-
             }
         }
 
