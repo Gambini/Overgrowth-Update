@@ -83,6 +83,7 @@
     <Compile Include="RevertVersion.Designer.cs">
       <DependentUpon>RevertVersion.cs</DependentUpon>
     </Compile>
+    <Compile Include="Settings.cs" />
     <EmbeddedResource Include="About.resx">
       <DependentUpon>About.cs</DependentUpon>
     </EmbeddedResource>

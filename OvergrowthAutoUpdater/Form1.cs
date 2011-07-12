@@ -493,7 +493,7 @@ namespace OvergrowthAutoUpdater
 
             //update files except .exe file. This might be bad if one of the files is already opened
             string folder = filename.Remove(filename.IndexOf(".zip"));
-            if(Directory.Exists(folder))  CleanUpdatesFolder(folder, true); 
+            if(Directory.Exists(folder))  CleanUpdatesFolder(folder, true); //if the update was unzipped before, then remove previous try
             using(ZipFile zip = new ZipFile(filename))
             {
                 zip.ExtractAll(folder);
@@ -507,18 +507,22 @@ namespace OvergrowthAutoUpdater
                 name = newfiles[i].Remove(0, currdirectory.Length); //so we only get the file name
 
 
-                if (File.Exists(currdirectory + name))
+                if (File.Exists(currdirectory + name)) //it is a file to be replaced
                 {
                     if (name == "OvergrowthAutoUpdater.exe")
                     {
                         //find a way to do something about it
+                        //this case is for replacing the exe, so maybe just set a flag for on restart, we should re-name it or something
                     }
                     else
+                    {
                         File.Delete(currdirectory + name); //so we don't get errors on copy
+                        File.Copy(newfiles[i], currdirectory + name);
+                    }
+                        
                 }
-                    
-
-                File.Copy(newfiles[i], currdirectory + name);
+                else //it is a file that is newly added
+                    File.Copy(newfiles[i], currdirectory + name);
             }
             
         }
