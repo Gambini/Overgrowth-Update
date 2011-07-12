@@ -132,7 +132,7 @@ namespace OvergrowthAutoUpdater
 
             using (ZipFile zip = ZipFile.Read(path))
             {
-                bwUpdateFiles.ReportProgress(1);
+                bwUpdateFiles.ReportProgress(1, salpha);
                 if (Directory.Exists(uncompressedDirectory))
                     CleanUpdatesFolder(uncompressedDirectory, true);
                 zip.ExtractAll(uncompressedDirectory);
@@ -153,7 +153,7 @@ namespace OvergrowthAutoUpdater
                 currentDirectories = Directory.GetDirectories(attributes.exeDirectory, "*", SearchOption.AllDirectories);
 
                 if (updateDirectories.Length == 0 || currentDirectories.Length == 0) return;
-                bwUpdateFiles.ReportProgress(2);
+                bwUpdateFiles.ReportProgress(2, salpha);
                 //go through each of the directories and compare them. Mightily ineffiecient, but effective
                 for (int u = 0; u < updateDirectories.Length; u++)
                 {
@@ -185,7 +185,7 @@ namespace OvergrowthAutoUpdater
                 } 
                 else backup = new ZipFile();//not going to use it
 
-                bwUpdateFiles.ReportProgress(3);
+                bwUpdateFiles.ReportProgress(3, salpha);
                 foreach (string dir in commonDirectories)
                 {
                     //no more clouding up the install folder with useless folders
@@ -232,7 +232,7 @@ namespace OvergrowthAutoUpdater
                     } //end outer 'for'
                 }//end foreach
 
-                bwUpdateFiles.ReportProgress(4);
+                bwUpdateFiles.ReportProgress(4, salpha);
                 //copying over the windows only stuff
                 //I'm just going to copy all of the files over, just in case the user likes to debug stuff
                 path = path + "Windows\\";
@@ -267,7 +267,7 @@ namespace OvergrowthAutoUpdater
 
                 if (attributes.createBackup)
                 {
-                    bwUpdateFiles.ReportProgress(5);
+                    bwUpdateFiles.ReportProgress(5, salpha);
                     backup.Save();
                 }
 

@@ -414,22 +414,23 @@ namespace OvergrowthAutoUpdater
 
         private void bwUpdateFiles_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
+            e.ToString();
             switch (e.ProgressPercentage)
             {
                 case 1:
-                    sstriplblStatus.Text = "Unpackaging the .zip update file.";
+                    sstriplblStatus.Text = e.UserState + ": Unpackaging the .zip update file.";
                     break;
                 case 2:
-                    sstriplblStatus.Text = "Finding common directories.";
+                    sstriplblStatus.Text = e.UserState + ": Finding common directories.";
                     break;
                 case 3:
-                    sstriplblStatus.Text = "Replacing files.";
+                    sstriplblStatus.Text = e.UserState + ": Replacing files.";
                     break;
                 case 4:
-                    sstriplblStatus.Text = "Replacing Windows only files";
+                    sstriplblStatus.Text = e.UserState + ": Replacing Windows only files";
                     break;
                 case 5:
-                    sstriplblStatus.Text = "Compressing the backup files.";
+                    sstriplblStatus.Text = e.UserState + ": Compressing the backup files.";
                     break;
                 default:
                     sstriplblStatus.Text = "Idle";
