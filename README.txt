@@ -48,6 +48,7 @@ v1.6:=========================================
 -It can now download more than two files at a time
 -Put more information in the status strip (thing at the very bottom) that tells you which update 
 is being worked on.
+-Doesn't re-download any files that you already downloaded.
 v1.5:=========================================
 Major bug fix
 -Again, a silly error on my part that stopped some of the update files from being copied over, which is now fixed.
