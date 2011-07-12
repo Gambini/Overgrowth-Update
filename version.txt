@@ -1,3 +1,3 @@
 1.5
 
-This file will only be updated whenever a new .zip file is added. It is used for the program to update itself.
+This file will only be updated whenever a new .zip file is added. It is used for the program to update itself.(currently not implemented)
