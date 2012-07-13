@@ -44,6 +44,11 @@ Icon made by ZramuliZ from the Overgrowth forums.
 
 
 Changelog:
+v1.7:=========================================
+Major bug fix
+-Alpha 185 is named as overgrowth-a185.zip instead of just a185.zip on the Overgrowth servers, so I made this able
+to detect that
+-Started on localization
 v1.6:=========================================
 -It can now download more than two files at a time
 -Put more information in the status strip (thing at the very bottom) that tells you which update 
