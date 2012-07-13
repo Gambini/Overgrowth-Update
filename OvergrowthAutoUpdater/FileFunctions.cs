@@ -10,6 +10,7 @@ using System.Collections;
 using System.IO;
 using System.Net;
 using Ionic.Zip;
+using OvergrowthAutoUpdater;
 
 namespace OvergrowthAutoUpdater
 {
@@ -83,7 +84,7 @@ namespace OvergrowthAutoUpdater
             currentVersion = GetCurrentVersion(); //so we have the most up to date version
             int current = int.Parse(currentVersion.Remove(0, 1));
 
-            updateZips = Directory.GetFiles(attributes.updateDirectory + "\\", "a*.zip");
+            updateZips = Directory.GetFiles(attributes.updateDirectory + "\\", "*a???.zip");
             if (updateZips.Length == 0)
             {
                 MessageBox.Show("You have no updates in the update folder.");
@@ -92,18 +93,17 @@ namespace OvergrowthAutoUpdater
 
             next = current += 1;
             if (next <= latestVersion)
-                if (File.Exists(attributes.updateDirectory + "\\a" + next + ".zip"))
+                if (File.Exists(attributes.updateDirectory + "\\" + frmMain.ComposeAlphaFileName(next) + ".zip"))
                 {
                     udata = new UpdateData(next, updateZips.Length);
                     bwUpdateFiles.RunWorkerAsync();
-                    //ReplaceFiles(attributes.updateDirectory + "\\a" + next + ".zip");
                 }
 
                 else
                 {
                     MessageBox.Show("Error in DoUpdateFiles function.\n" +
-                        "Could not find update file " + attributes.updateDirectory + "\\a" + next + ".zip\n" +
-                        "You will be at version a" + (next - 1) + " until the update file for a" + next + " is found.");
+                        "Could not find update file " + attributes.updateDirectory + "\\" + frmMain.ComposeAlphaFileName(next) + ".zip\n" +
+                        "You will be at version " + frmMain.ComposeAlphaFileName(next-1) + " until the update file for " + frmMain.ComposeAlphaFileName(next) + " is found.");
                     return;
                 }
             else

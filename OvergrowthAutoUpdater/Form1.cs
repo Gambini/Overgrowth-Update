@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Collections;
 using System.IO;
 using System.Net;
+using System.Threading;
 using Ionic.Zip;
 
 
@@ -79,7 +80,8 @@ namespace OvergrowthAutoUpdater
             if (attributes.exeDirectory != "")
             {
                 currentVersion = GetCurrentVersion();
-                lblCurrentVersion.Text = "Current Overgrowth version: " + currentVersion;
+
+                lblCurrentVersion.Text = LStrings.CurrentOGVersion + currentVersion;
                 txtExeDir.Text = attributes.exeDirectory + "Overgrowth.exe";
                 latestVersion = FindLatestVersion(int.Parse(currentVersion.Remove(0, 1))); //might make startup long on slow Internet computers
             }
@@ -88,6 +90,7 @@ namespace OvergrowthAutoUpdater
             downloadSequentiallyToolStripMenuItem.Checked = attributes.sequentialDownload;
             switch (attributes.downloadOption)
             {
+                //these are not localized because they are actually options
                 case "Download": rbtnDownload.Checked = true; break;
                 case "Update": rbtnUpdate.Checked = true; break;
                 case "Download and Update": rbtnDownloadAndUpdate.Checked = true; break;
@@ -115,6 +118,18 @@ namespace OvergrowthAutoUpdater
                 bwUpdateFiles.CancelAsync();
             }
         }
+
+
+        /// <summary> Returns the string version of the alpha file. It will either be
+        /// overgrowth-a### (if after 184) or a### (if 184 or before)</summary>
+        public static string ComposeAlphaFileName(int version)
+        {
+            if (version > 184)
+                return "overgrowth-a" + version;
+            else
+                return "a" + version;
+        }
+
 
 
         ///<summary>Changes the download options that are available if the user supplies its own update files.</summary>
@@ -147,18 +162,20 @@ namespace OvergrowthAutoUpdater
         {
             try //it only makes sense, because we are working with files
             {
-                updateZips = Directory.GetFiles(attributes.updateDirectory, "a*.zip");
+                updateZips = Directory.GetFiles(attributes.updateDirectory, "*a???.zip");
                 if (updateZips.Length == 0) return; //don't put anything in the list box if no update files are there
                 for (int i = 0; i < updateZips.Length; i++)
                 {
-                    //the '-4' at the end makes it so it doesn't remove the 'a###' part. If alpha versions go into the 1000's
+                    //the '-3' at the end makes it so it doesn't remove the '###' part. If alpha versions go into the 1000's
                     //then this value will have to be changed
-                    lstUpdates.Items.Add(updateZips[i].Remove(0, updateZips[i].IndexOf(".zip")-4)); //I hope this is in order.
+                    string version = updateZips[i].Remove(0, updateZips[i].IndexOf(".zip") - 3);
+                    version = version.Remove(version.IndexOf(".zip"));
+                    lstUpdates.Items.Add(ComposeAlphaFileName(int.Parse(version)));
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Something happened in the updateListBox function\n" + ex.Message);
+                MessageBox.Show(LStrings.Ex_updateListBox + "\n" + ex.Message);
             }
             
         }
@@ -169,19 +186,19 @@ namespace OvergrowthAutoUpdater
         private void rbtnDownload_CheckedChanged(object sender, EventArgs e)
         {
             attributes.downloadOption = "Download";
-            btnDoUpdate.Text = attributes.downloadOption;
+            btnDoUpdate.Text = LStrings.Download;
         }
 
         private void rbtnUpdate_CheckedChanged(object sender, EventArgs e)
         {
             attributes.downloadOption = "Update";
-            btnDoUpdate.Text = attributes.downloadOption;
+            btnDoUpdate.Text = LStrings.Update;
         }
 
         private void rbtnDownloadAndUpdate_CheckedChanged(object sender, EventArgs e)
         {
             attributes.downloadOption = "Download and Update";
-            btnDoUpdate.Text = attributes.downloadOption;
+            btnDoUpdate.Text = LStrings.Download_and_Update;
         }
 
 
@@ -221,7 +238,7 @@ namespace OvergrowthAutoUpdater
         private void opnFileDialogExe_FileOk(object sender, CancelEventArgs e)
         {
             if (!File.Exists(exeFileDialog.FileName))
-                txtExeDir.Text = "The file you gave does not exist";
+                txtExeDir.Text = LStrings.Er_FileDoesNotExist;
 
             if (exeFileDialog.FileName.Contains("Overgrowth.exe") && File.Exists(exeFileDialog.FileName))
             {
@@ -229,11 +246,11 @@ namespace OvergrowthAutoUpdater
                 attributes.exeDirectory = exeFileDialog.FileName;
                 attributes.exeDirectory = attributes.exeDirectory.Remove(attributes.exeDirectory.IndexOf("Overgrowth.exe"));
                 currentVersion = GetCurrentVersion();
-                lblCurrentVersion.Text = "Current Overgrowth version: " + currentVersion;
+                lblCurrentVersion.Text = LStrings.CurrentOGVersion + currentVersion;
             }
             else
                 //show error
-                txtExeDir.Text = "You did not choose Overgrowth.exe";
+                txtExeDir.Text = LStrings.Er_ChooseExe;
         }
 
 
@@ -409,7 +426,7 @@ namespace OvergrowthAutoUpdater
         /// <summary>So the UI thread isn't busied up for the duration of the file portion of the update</summary>
         private void bwUpdateFiles_DoWork(object sender, DoWorkEventArgs e)
         {
-            ReplaceFiles(attributes.updateDirectory + "\\a" + udata.next + ".zip");
+            ReplaceFiles(attributes.updateDirectory + "\\" + ComposeAlphaFileName(udata.next) + ".zip");
         }
 
         private void bwUpdateFiles_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -451,7 +468,7 @@ namespace OvergrowthAutoUpdater
                 sstriplblStatus.Text = "Done";
                 toggleDownloadOptions(true);
                 cboxHaveUpdate.Enabled = true;
-                return; // is this correct?
+                return; 
             }
 
             bwUpdateFiles.RunWorkerAsync(); //I hope this doesn't go all recursive-crazy on me
@@ -483,7 +500,7 @@ namespace OvergrowthAutoUpdater
 
 
         /************
-        For updating this program
+        For updating this program -- doesn't work
         ******************/
         private void bwUpdateTool_DoWork(object sender, DoWorkEventArgs e)
         {

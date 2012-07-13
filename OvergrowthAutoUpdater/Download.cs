@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net;
+using OvergrowthAutoUpdater;
 
 namespace OvergrowthAutoUpdater
 {
@@ -18,16 +19,22 @@ namespace OvergrowthAutoUpdater
         public bool accountedFor;
         /// <summary> The version that it is downloading, minus the 'a' </summary>
         public int alpha;
+        /// <summary> The string version of the file name. Before v185, it will be "a###" and 
+        /// 185+ will be "overgrowth-a###"</summary>
+        public string alphaFileName;
 
         public Download(WebClient wc, int a)
-        { wclient = wc; totalSize = 0; completed = 0; accountedFor = false; alpha = a; }
+        { 
+            wclient = wc; totalSize = 0; completed = 0; accountedFor = false; alpha = a;
+            alphaFileName = frmMain.ComposeAlphaFileName(a);
+        }
 
         public override string ToString()
         {
             int percent;
             if (totalSize == 0) percent = 0;
             else percent = (int)(((double)completed / (double)totalSize) * 100);
-            return "a" + alpha + ".zip.... " + percent + "%";
+            return alphaFileName + ".zip.... " + percent + "%";
         }
     }
 }

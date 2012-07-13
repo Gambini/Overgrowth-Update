@@ -45,9 +45,9 @@ namespace OvergrowthAutoUpdater
                 sstriplblStatus.Text = "Downloading updates";
                 foreach (Download dl in clients)
                 {
-                    dl.wclient.BaseAddress = updateURL + "a" + dl.alpha + ".zip";
+                    dl.wclient.BaseAddress = updateURL + dl.alphaFileName + ".zip";
                     //So we don't make the user re-download every update.
-                    if (File.Exists(@attributes.updateDirectory + "\\a" + dl.alpha + ".zip"))
+                    if (File.Exists(@attributes.updateDirectory + "\\" + dl.alphaFileName + ".zip"))
                     {
                         //'trick' it to think that the download is completed. This will make the items be out of order, more than likely
                         DownloadFileCompleted(dl.wclient, new AsyncCompletedEventArgs(new Exception(), false, new object()));
@@ -55,7 +55,7 @@ namespace OvergrowthAutoUpdater
                     else
                     {
                         //because DlFileAsync combines BaseAddress with the adress given, I can create an empty uri
-                        dl.wclient.DownloadFileAsync(new Uri("", UriKind.Relative), @attributes.updateDirectory + "\\a" + dl.alpha + ".zip");
+                        dl.wclient.DownloadFileAsync(new Uri("", UriKind.Relative), @attributes.updateDirectory + "\\" + dl.alphaFileName + ".zip");
                         lstDownloadProgress.Items.Add(dl);
                     }
                 }
@@ -72,19 +72,21 @@ namespace OvergrowthAutoUpdater
         private int FindLatestVersion(int current)
         {
             int latest = current;
+            string latestURL = ""; //this will be the full url, and naming scheme for the .zip file
 
             //check for a httprequest from an incremental number starting from the current version
             try
             {
-                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(updateURL + "a" + latest + ".zip"); //I'm going to assume that the current version is there
+                latestURL = updateURL + ComposeAlphaFileName(latest) + ".zip";
+                HttpWebRequest req  = (HttpWebRequest)WebRequest.Create(latestURL);
                 HttpWebResponse res = (HttpWebResponse)req.GetResponse();
                 while (res.StatusCode == HttpStatusCode.OK)
                 {
                     req.Abort(); //so we start with new streams
                     res.Close();
                     latest += 1; //set up checking for the next version up
-                    req = (HttpWebRequest)WebRequest.Create(updateURL + "a" + latest + ".zip");
-                    sstriplblStatus.Text = "Requesting status of " + updateURL + "a" + latest + ".zip";
+                    latestURL = updateURL + ComposeAlphaFileName(latest) + ".zip";
+                    req = (HttpWebRequest)WebRequest.Create(latestURL);
                     res = (HttpWebResponse)req.GetResponse();
                 }
                 return latest -= 1;
@@ -135,7 +137,7 @@ namespace OvergrowthAutoUpdater
             //visual stuff
             int index = GetDownloadFromWebClient((WebClient)sender);
             Download dl = (Download)clients[index];
-            lstUpdates.Items.Add("a" + dl.alpha + ".zip");
+            lstUpdates.Items.Add(dl.alphaFileName);
 
             if (lstUpdates.Items.Count == clients.Count) //if all of the files have finished downloading
             {
