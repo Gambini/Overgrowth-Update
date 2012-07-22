@@ -1,4 +1,4 @@
-This is the Overgrowth Updater v1.5. It will update your Overgrowth game to the latest version, regardless of 
+This is the Overgrowth Updater v1.7. It will update your Overgrowth game to the latest version, regardless of 
 what version you are currently on. (Assuming it is higher than a112; that's when the updates started)
 
 Quick how to use:
